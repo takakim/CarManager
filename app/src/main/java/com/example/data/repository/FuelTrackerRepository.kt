@@ -49,6 +49,7 @@ class FuelTrackerRepository(
       currencySymbol = "$",
       distanceUnit = DistanceUnit.KILOMETERS,
       volumeUnit = VolumeUnit.LITERS,
+      economyUnit = com.example.data.model.EconomyUnit.L_PER_100KM,
       tankCapacity = 43.0
     )
     vehicleProfileDao.insertOrUpdate(defaultProf)
@@ -77,6 +78,7 @@ class FuelTrackerRepository(
       currencySymbol = "$",
       distanceUnit = DistanceUnit.KILOMETERS,
       volumeUnit = VolumeUnit.LITERS,
+      economyUnit = com.example.data.model.EconomyUnit.L_PER_100KM,
       tankCapacity = 47.0
     )
     vehicleProfileDao.insertOrUpdate(vehicle)

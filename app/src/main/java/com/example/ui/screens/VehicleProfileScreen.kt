@@ -285,6 +285,8 @@ fun VehicleProfileScreen(
           HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
           ConfigRow(label = "Volume Unit", value = "${vehicle.volumeUnit.label} (${vehicle.volumeUnit.symbol})")
           HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
+          ConfigRow(label = "Economy Unit", value = "${vehicle.economyUnit.label} (${vehicle.economyUnit.symbol})")
+          HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
           ConfigRow(label = "Initial Odometer", value = "${vehicle.initialOdometer} ${vehicle.distanceUnit.symbol}")
           HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
           ConfigRow(label = "Tank / Battery Capacity", value = "${vehicle.tankCapacity} ${vehicle.volumeUnit.symbol}")

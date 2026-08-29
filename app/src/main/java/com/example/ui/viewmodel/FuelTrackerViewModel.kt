@@ -279,13 +279,7 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     // Fuel economy
-    val avgEconomy = if (totalDistance > 0 && totalVolume > 0) {
-      if (vehicle.fuelType == FuelType.ELECTRIC) {
-        (totalVolume / totalDistance) * 100.0 // kWh / 100km
-      } else {
-        (totalVolume / totalDistance) * 100.0 // L / 100km
-      }
-    } else 0.0
+    val avgEconomy = EconomyUnit.calculate(totalDistance, totalVolume, vehicle.economyUnit)
 
     val costPerDist = if (totalDistance > 0) totalSpent / totalDistance else 0.0
 
@@ -319,6 +313,7 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
       latestPricePaid = latestPrice,
       totalDistance = totalDistance,
       averageEconomy = avgEconomy,
+      economyUnit = vehicle.economyUnit,
       costPerDistance = costPerDist,
       spendingPerDay = spendingPerDay,
       spendingPerWeek = spendingPerWeek,

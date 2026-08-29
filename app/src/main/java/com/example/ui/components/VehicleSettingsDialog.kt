@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,6 +28,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +48,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.data.model.DistanceUnit
+import com.example.data.model.EconomyUnit
 import com.example.data.model.FuelType
 import com.example.data.model.VehicleProfile
 import com.example.data.model.VolumeUnit
@@ -69,11 +77,13 @@ fun VehicleSettingsDialog(
   var currencySymbol by remember { mutableStateOf(vehicle.currencySymbol) }
   var distanceUnit by remember { mutableStateOf(vehicle.distanceUnit) }
   var volumeUnit by remember { mutableStateOf(vehicle.volumeUnit) }
+  var economyUnit by remember { mutableStateOf(vehicle.economyUnit) }
   var tankCapacityStr by remember { mutableStateOf(vehicle.tankCapacity.toString()) }
 
   var fuelTypeExpanded by remember { mutableStateOf(false) }
   var distExpanded by remember { mutableStateOf(false) }
   var volExpanded by remember { mutableStateOf(false) }
+  var economyExpanded by remember { mutableStateOf(false) }
 
   val calendar = Calendar.getInstance().apply { timeInMillis = purchaseDateMillis }
   val datePickerDialog = DatePickerDialog(
@@ -95,7 +105,9 @@ fun VehicleSettingsDialog(
 
   AlertDialog(
     onDismissRequest = onDismiss,
-    modifier = Modifier.testTag("vehicle_settings_dialog"),
+    modifier = Modifier
+      .fillMaxWidth()
+      .testTag("vehicle_settings_dialog"),
     title = {
       Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
@@ -105,7 +117,7 @@ fun VehicleSettingsDialog(
           modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-          text = "Vehicle & Ownership Setup",
+          text = "Vehicle Setup & Units",
           style = MaterialTheme.typography.titleLarge,
           fontWeight = FontWeight.Bold
         )
@@ -116,9 +128,16 @@ fun VehicleSettingsDialog(
         modifier = Modifier
           .fillMaxWidth()
           .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
       ) {
-        // Vehicle Nickname & Model
+        // Section 1: Vehicle Information
+        Text(
+          text = "Vehicle Information",
+          style = MaterialTheme.typography.labelLarge,
+          fontWeight = FontWeight.Bold,
+          color = MaterialTheme.colorScheme.primary
+        )
+
         OutlinedTextField(
           value = name,
           onValueChange = { name = it },
@@ -176,11 +195,14 @@ fun VehicleSettingsDialog(
                 text = { Text(type.displayName) },
                 onClick = {
                   selectedFuelType = type
-                  // auto adjust volume unit if changed to electric or vice versa
                   if (type == FuelType.ELECTRIC) {
                     volumeUnit = VolumeUnit.KWH
+                    economyUnit = if (distanceUnit == DistanceUnit.MILES) EconomyUnit.MI_PER_KWH else EconomyUnit.KWH_PER_100KM
                   } else if (volumeUnit == VolumeUnit.KWH) {
                     volumeUnit = VolumeUnit.LITERS
+                    economyUnit = if (distanceUnit == DistanceUnit.MILES) EconomyUnit.MPG_US else EconomyUnit.L_PER_100KM
+                  } else {
+                    economyUnit = EconomyUnit.getDefault(type, distanceUnit, volumeUnit)
                   }
                   fuelTypeExpanded = false
                 }
@@ -189,7 +211,17 @@ fun VehicleSettingsDialog(
           }
         }
 
-        // Purchase Date Picker ("Since I bought it")
+        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+
+        // Section 2: Ownership History
+        Text(
+          text = "Ownership & Starting History",
+          style = MaterialTheme.typography.labelLarge,
+          fontWeight = FontWeight.Bold,
+          color = MaterialTheme.colorScheme.primary
+        )
+
+        // Purchase Date Picker
         Surface(
           onClick = { datePickerDialog.show() },
           shape = RoundedCornerShape(12.dp),
@@ -225,18 +257,28 @@ fun VehicleSettingsDialog(
           }
         }
 
-        // Starting Odometer When Purchased
+        // Starting Odometer
         OutlinedTextField(
           value = initialOdometerStr,
           onValueChange = { initialOdometerStr = it },
-          label = { Text("Odometer When Purchased (${distanceUnit.symbol})") },
+          label = { Text("Starting Odometer (${distanceUnit.symbol})") },
           placeholder = { Text("e.g. 0 or 15000") },
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
           singleLine = true,
           modifier = Modifier.fillMaxWidth()
         )
 
-        // Currency Symbol & Units
+        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+
+        // Section 3: Currency, Units & Fuel Economy
+        Text(
+          text = "Currency & Display Units",
+          style = MaterialTheme.typography.labelLarge,
+          fontWeight = FontWeight.Bold,
+          color = MaterialTheme.colorScheme.primary
+        )
+
+        // Currency & Tank Capacity (2-column row with ample space)
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -247,22 +289,40 @@ fun VehicleSettingsDialog(
             label = { Text("Currency") },
             placeholder = { Text("$, €, £") },
             singleLine = true,
-            modifier = Modifier.weight(0.8f)
+            modifier = Modifier.weight(1f)
           )
 
+          OutlinedTextField(
+            value = tankCapacityStr,
+            onValueChange = { tankCapacityStr = it },
+            label = { Text("Tank / Battery (${volumeUnit.symbol})") },
+            placeholder = { Text("50") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            modifier = Modifier.weight(1f)
+          )
+        }
+
+        // Distance & Volume Units (2-column dropdowns)
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
           // Distance Unit
           ExposedDropdownMenuBox(
             expanded = distExpanded,
             onExpandedChange = { distExpanded = it },
-            modifier = Modifier.weight(1.1f)
+            modifier = Modifier.weight(1f)
           ) {
             OutlinedTextField(
-              value = distanceUnit.symbol,
+              value = "${distanceUnit.label} (${distanceUnit.symbol})",
               onValueChange = {},
               readOnly = true,
               label = { Text("Distance") },
               trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = distExpanded) },
-              modifier = Modifier.menuAnchor()
+              modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
             )
             ExposedDropdownMenu(
               expanded = distExpanded,
@@ -270,9 +330,10 @@ fun VehicleSettingsDialog(
             ) {
               DistanceUnit.values().forEach { d ->
                 DropdownMenuItem(
-                  text = { Text("${d.symbol} (${d.label})") },
+                  text = { Text("${d.label} (${d.symbol})") },
                   onClick = {
                     distanceUnit = d
+                    economyUnit = EconomyUnit.getDefault(selectedFuelType, d, volumeUnit)
                     distExpanded = false
                   }
                 )
@@ -284,15 +345,17 @@ fun VehicleSettingsDialog(
           ExposedDropdownMenuBox(
             expanded = volExpanded,
             onExpandedChange = { volExpanded = it },
-            modifier = Modifier.weight(1.1f)
+            modifier = Modifier.weight(1f)
           ) {
             OutlinedTextField(
-              value = volumeUnit.symbol,
+              value = "${volumeUnit.label} (${volumeUnit.symbol})",
               onValueChange = {},
               readOnly = true,
               label = { Text("Volume") },
               trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = volExpanded) },
-              modifier = Modifier.menuAnchor()
+              modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
             )
             ExposedDropdownMenu(
               expanded = volExpanded,
@@ -300,13 +363,51 @@ fun VehicleSettingsDialog(
             ) {
               VolumeUnit.values().forEach { v ->
                 DropdownMenuItem(
-                  text = { Text("${v.symbol} (${v.label})") },
+                  text = { Text("${v.label} (${v.symbol})") },
                   onClick = {
                     volumeUnit = v
+                    economyUnit = EconomyUnit.getDefault(selectedFuelType, distanceUnit, v)
                     volExpanded = false
                   }
                 )
               }
+            }
+          }
+        }
+
+        // Fuel Economy Unit (Full Width Dropdown)
+        ExposedDropdownMenuBox(
+          expanded = economyExpanded,
+          onExpandedChange = { economyExpanded = it },
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          OutlinedTextField(
+            value = economyUnit.label,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Fuel / Energy Economy Unit") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = economyExpanded) },
+            modifier = Modifier
+              .menuAnchor()
+              .fillMaxWidth()
+          )
+          ExposedDropdownMenu(
+            expanded = economyExpanded,
+            onDismissRequest = { economyExpanded = false }
+          ) {
+            EconomyUnit.values().forEach { unit ->
+              DropdownMenuItem(
+                text = {
+                  Column {
+                    Text(unit.label, fontWeight = FontWeight.SemiBold)
+                    Text(unit.symbol, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                  }
+                },
+                onClick = {
+                  economyUnit = unit
+                  economyExpanded = false
+                }
+              )
             }
           }
         }
@@ -329,6 +430,7 @@ fun VehicleSettingsDialog(
             currencySymbol = if (currencySymbol.isNotBlank()) currencySymbol.trim() else "$",
             distanceUnit = distanceUnit,
             volumeUnit = volumeUnit,
+            economyUnit = economyUnit,
             tankCapacity = cap
           )
           onSave(updated)
@@ -345,3 +447,4 @@ fun VehicleSettingsDialog(
     }
   )
 }
+

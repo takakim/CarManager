@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.example.data.model.DistanceUnit
+import com.example.data.model.EconomyUnit
 import com.example.data.model.FuelLog
 import com.example.data.model.FuelType
 import com.example.data.model.VehicleProfile
@@ -33,11 +34,18 @@ class Converters {
   @TypeConverter
   fun toVolumeUnit(value: String?): VolumeUnit =
     value?.let { runCatching { VolumeUnit.valueOf(it) }.getOrDefault(VolumeUnit.LITERS) } ?: VolumeUnit.LITERS
+
+  @TypeConverter
+  fun fromEconomyUnit(value: EconomyUnit?): String? = value?.name
+
+  @TypeConverter
+  fun toEconomyUnit(value: String?): EconomyUnit =
+    value?.let { runCatching { EconomyUnit.valueOf(it) }.getOrDefault(EconomyUnit.L_PER_100KM) } ?: EconomyUnit.L_PER_100KM
 }
 
 @Database(
   entities = [VehicleProfile::class, FuelLog::class],
-  version = 1,
+  version = 2,
   exportSchema = false
 )
 @TypeConverters(Converters::class)

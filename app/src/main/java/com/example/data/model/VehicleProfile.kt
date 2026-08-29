@@ -17,5 +17,6 @@ data class VehicleProfile(
   val currencySymbol: String = "$",
   val distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
   val volumeUnit: VolumeUnit = VolumeUnit.LITERS,
+  val economyUnit: EconomyUnit = EconomyUnit.L_PER_100KM,
   val tankCapacity: Double = 50.0
 )

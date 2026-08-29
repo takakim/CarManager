@@ -66,7 +66,7 @@ fun FuelLogCard(
 
   // Consumption for this interval if full tank
   val intervalEconomy = if (deltaDistance != null && deltaDistance > 0 && log.isFullTank && log.amount > 0) {
-    (log.amount / deltaDistance) * 100.0 // L/100km or kWh/100km
+    com.example.data.model.EconomyUnit.calculate(deltaDistance, log.amount, vehicle.economyUnit)
   } else null
 
   Card(
@@ -188,7 +188,7 @@ fun FuelLogCard(
           // Interval economy if calculated
           if (intervalEconomy != null) {
             Text(
-              text = String.format(Locale.getDefault(), "%.1f %s", intervalEconomy, if (isElectric) "kWh/100km" else "L/100km"),
+              text = String.format(Locale.getDefault(), "%.1f %s", intervalEconomy, vehicle.economyUnit.symbol),
               fontSize = 12.sp,
               color = MaterialTheme.colorScheme.primary,
               fontWeight = FontWeight.Bold

@@ -33,7 +33,8 @@ data class PeriodSummary(
   val maxPricePaid: Double = 0.0,
   val latestPricePaid: Double = 0.0,
   val totalDistance: Double = 0.0, // Distance driven in this period
-  val averageEconomy: Double = 0.0, // L/100km or MPG
+  val averageEconomy: Double = 0.0, // e.g. L/100km, MPG, km/L, kWh/100km, mi/kWh
+  val economyUnit: EconomyUnit = EconomyUnit.L_PER_100KM,
   val costPerDistance: Double = 0.0, // $/km or $/mi
   val spendingPerDay: Double = 0.0,
   val spendingPerWeek: Double = 0.0,

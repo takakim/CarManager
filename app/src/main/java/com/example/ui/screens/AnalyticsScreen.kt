@@ -207,17 +207,17 @@ fun AnalyticsScreen(
               value = if (sincePurchaseSum.costPerDistance > 0) {
                 String.format(Locale.getDefault(), "%s%.3f", currency, sincePurchaseSum.costPerDistance)
               } else "--",
-              subtitle = "since purchase",
+              subtitle = "per $distUnit driven",
               icon = Icons.Default.TrendingUp,
               modifier = Modifier.weight(1f)
             )
 
             AnalyticsMetricBox(
-              title = "Fuel Economy",
+              title = if (isElectric) "Energy Economy" else "Fuel Economy",
               value = if (sincePurchaseSum.averageEconomy > 0) {
                 String.format(Locale.getDefault(), "%.1f", sincePurchaseSum.averageEconomy)
               } else "--",
-              subtitle = if (isElectric) "kWh/100km" else "L/100km",
+              subtitle = vehicle.economyUnit.symbol,
               icon = if (isElectric) Icons.Default.ElectricBolt else Icons.Default.LocalGasStation,
               modifier = Modifier.weight(1f)
             )
