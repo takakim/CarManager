@@ -1,0 +1,6 @@
+{
+  "name": "Fuel & Energy Tracker",
+  "description": "Track car fuel and energy consumption, weekly/monthly/yearly spending, total cost since purchase, and average unit price paid.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
