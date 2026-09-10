@@ -41,4 +41,9 @@ data class PeriodSummary(
   val spendingPerMonth: Double = 0.0,
   val chartBars: List<ChartBarData> = emptyList(),
   val pricePoints: List<PricePointData> = emptyList()
-)
+) {
+  val formattedConsumption: String
+    get() = if (averageEconomy > 0.0) {
+      String.format(java.util.Locale.getDefault(), "%.2f %s", averageEconomy, economyUnit.symbol)
+    } else "N/A"
+}

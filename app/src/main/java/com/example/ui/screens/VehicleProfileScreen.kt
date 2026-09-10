@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -80,6 +81,7 @@ fun VehicleProfileScreen(
   onDeleteVehicle: (Int) -> Unit,
   onLoadSampleClick: () -> Unit,
   onClearDataClick: () -> Unit,
+  onToggleSmartAdvisor: (Boolean) -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   var currentSubTab by remember { mutableStateOf(VehicleScreenSubTab.ACTIVE_VEHICLE) }
@@ -362,6 +364,75 @@ fun VehicleProfileScreen(
             ConfigRow(label = "Initial Odometer", value = "${vehicle.initialOdometer} ${vehicle.distanceUnit.symbol}")
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
             ConfigRow(label = "Tank / Battery Capacity", value = "${vehicle.tankCapacity} ${vehicle.volumeUnit.symbol}")
+          }
+        }
+      }
+
+      // On-Device Smart Advisor Settings Card
+      item {
+        Card(
+          modifier = Modifier
+            .fillMaxWidth()
+            .testTag("smart_advisor_settings_card"),
+          shape = RoundedCornerShape(20.dp),
+          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+          elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(18.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(14.dp),
+              modifier = Modifier.weight(1f)
+            ) {
+              Box(
+                modifier = Modifier
+                  .size(42.dp)
+                  .clip(CircleShape)
+                  .background(
+                    if (uiState.isSmartAdvisorEnabled)
+                      MaterialTheme.colorScheme.primaryContainer
+                    else
+                      MaterialTheme.colorScheme.surfaceVariant
+                  ),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = Icons.Default.AutoAwesome,
+                  contentDescription = null,
+                  tint = if (uiState.isSmartAdvisorEnabled)
+                    MaterialTheme.colorScheme.primary
+                  else
+                    MaterialTheme.colorScheme.onSurfaceVariant,
+                  modifier = Modifier.size(22.dp)
+                )
+              }
+              Column {
+                Text(
+                  text = "On-Device Smart Advisor",
+                  style = MaterialTheme.typography.titleMedium,
+                  fontWeight = FontWeight.Bold
+                )
+                Text(
+                  text = "Period cost breakdown & vehicle efficiency tips calculated locally on your phone. 100% private, runs offline, zero API fees.",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+              }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Switch(
+              checked = uiState.isSmartAdvisorEnabled,
+              onCheckedChange = onToggleSmartAdvisor,
+              modifier = Modifier.testTag("smart_advisor_profile_toggle")
+            )
           }
         }
       }

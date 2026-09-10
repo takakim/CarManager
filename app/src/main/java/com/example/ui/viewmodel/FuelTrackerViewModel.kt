@@ -17,12 +17,16 @@ import com.example.data.model.VehicleProfile
 import com.example.data.model.VolumeUnit
 import com.example.data.repository.FuelTrackerRepository
 import com.example.data.util.ImportExportHelper
+import com.example.data.model.AiPeriodAnalysis
+import com.example.data.advisor.OnDeviceSmartAdvisorService
+import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -43,12 +47,17 @@ data class UiState(
   val allTimeSummary: PeriodSummary = PeriodSummary(TimeFilter.ALL_TIME, 0L, 0L),
   val allTimeAvgPrice: Double = 0.0,
   val recentAvgPrice: Double = 0.0,
+  val isSmartAdvisorEnabled: Boolean = true,
+  val aiAnalysis: AiPeriodAnalysis? = null,
+  val isAiAnalyzing: Boolean = false,
   val isLoading: Boolean = false,
   val userMessage: String? = null
 )
 
 class FuelTrackerViewModel(application: Application) : AndroidViewModel(application) {
   private val repository: FuelTrackerRepository
+  private val onDeviceAdvisorService = OnDeviceSmartAdvisorService()
+  private val prefs = application.getSharedPreferences("fuel_tracker_prefs", Context.MODE_PRIVATE)
 
   private val _selectedFilter = MutableStateFlow(TimeFilter.THIS_MONTH)
   val selectedFilter = _selectedFilter.asStateFlow()
@@ -56,7 +65,12 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
   private val _activeVehicleId = MutableStateFlow<Int?>(null)
   val activeVehicleId = _activeVehicleId.asStateFlow()
 
-  private val _uiState = MutableStateFlow(UiState(isLoading = true))
+  private val _uiState = MutableStateFlow(
+    UiState(
+      isLoading = true,
+      isSmartAdvisorEnabled = prefs.getBoolean("smart_advisor_enabled", true)
+    )
+  )
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
   init {
@@ -168,11 +182,72 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
           allTimeSummary = allTimeSum,
           allTimeAvgPrice = allTimeAvg,
           recentAvgPrice = recentAvg,
+          isSmartAdvisorEnabled = _uiState.value.isSmartAdvisorEnabled,
+          aiAnalysis = _uiState.value.aiAnalysis,
+          isAiAnalyzing = _uiState.value.isAiAnalyzing,
           isLoading = false,
           userMessage = _uiState.value.userMessage
         )
       }.collect { state ->
         _uiState.value = state
+      }
+    }
+  }
+
+  fun toggleSmartAdvisor(enabled: Boolean) {
+    prefs.edit().putBoolean("smart_advisor_enabled", enabled).apply()
+    _uiState.update {
+      it.copy(
+        isSmartAdvisorEnabled = enabled,
+        userMessage = if (enabled) "On-Device Smart Advisor enabled" else "Smart Advisor disabled"
+      )
+    }
+    if (enabled && _uiState.value.aiAnalysis == null) {
+      requestAiAnalysis()
+    }
+  }
+
+  fun requestAiAnalysis(filter: TimeFilter? = null) {
+    val currentUiState = _uiState.value
+    if (!currentUiState.isSmartAdvisorEnabled) return
+
+    val targetFilter = filter ?: _selectedFilter.value
+    val targetSummary = when (targetFilter) {
+      TimeFilter.THIS_WEEK -> currentUiState.weekSummary
+      TimeFilter.THIS_MONTH -> currentUiState.monthSummary
+      TimeFilter.THIS_YEAR -> currentUiState.yearSummary
+      TimeFilter.SINCE_PURCHASE -> currentUiState.sincePurchaseSummary
+      TimeFilter.ALL_TIME -> currentUiState.allTimeSummary
+    }
+
+    viewModelScope.launch {
+      _uiState.update { it.copy(isAiAnalyzing = true) }
+      try {
+        val analysis = onDeviceAdvisorService.analyzePeriod(
+          vehicle = currentUiState.vehicle,
+          summary = targetSummary,
+          periodLogs = currentUiState.logs.filter {
+            if (targetSummary.startDateMillis > 0 && targetSummary.endDateMillis > 0) {
+              it.timestamp in targetSummary.startDateMillis..targetSummary.endDateMillis
+            } else true
+          },
+          allTimeAvgPrice = currentUiState.allTimeAvgPrice,
+          allTimeSummary = currentUiState.allTimeSummary
+        )
+        _uiState.update {
+          it.copy(
+            aiAnalysis = analysis,
+            isAiAnalyzing = false,
+            userMessage = "Smart period insights updated"
+          )
+        }
+      } catch (e: Exception) {
+        _uiState.update {
+          it.copy(
+            isAiAnalyzing = false,
+            userMessage = "Analysis error: ${e.localizedMessage}"
+          )
+        }
       }
     }
   }

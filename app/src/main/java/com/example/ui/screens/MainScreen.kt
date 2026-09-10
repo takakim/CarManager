@@ -158,7 +158,9 @@ fun MainScreen(
             onViewAllLogsClick = { currentTab = MainTab.LOGS },
             onOpenSettingsClick = { showVehicleSettingsDialog = true },
             onSelectVehicle = { viewModel.selectVehicle(it) },
-            onLoadSampleClick = { viewModel.loadSampleData() }
+            onLoadSampleClick = { viewModel.loadSampleData() },
+            onAnalyzeAiClick = { viewModel.requestAiAnalysis(it) },
+            onToggleSmartAdvisor = { viewModel.toggleSmartAdvisor(it) }
           )
         }
         MainTab.LOGS -> {
@@ -172,7 +174,9 @@ fun MainScreen(
         }
         MainTab.ANALYTICS -> {
           AnalyticsScreen(
-            uiState = uiState
+            uiState = uiState,
+            onAnalyzeAiClick = { viewModel.requestAiAnalysis(it) },
+            onToggleSmartAdvisor = { viewModel.toggleSmartAdvisor(it) }
           )
         }
         MainTab.VEHICLE -> {
@@ -184,7 +188,8 @@ fun MainScreen(
             onSelectVehicleAsActive = { viewModel.selectVehicle(it) },
             onDeleteVehicle = { viewModel.deleteVehicle(it) },
             onLoadSampleClick = { viewModel.loadSampleData() },
-            onClearDataClick = { viewModel.clearAllData() }
+            onClearDataClick = { viewModel.clearAllData() },
+            onToggleSmartAdvisor = { viewModel.toggleSmartAdvisor(it) }
           )
         }
       }

@@ -52,6 +52,7 @@ import com.example.data.model.FuelLog
 import com.example.data.model.FuelType
 import com.example.data.model.PeriodSummary
 import com.example.data.model.TimeFilter
+import com.example.ui.components.AiInsightsCard
 import com.example.ui.components.AvgPriceCard
 import com.example.ui.components.FuelLogCard
 import com.example.ui.components.PriceHistoryChart
@@ -71,6 +72,8 @@ fun DashboardScreen(
   onOpenSettingsClick: () -> Unit,
   onSelectVehicle: (Int) -> Unit = {},
   onLoadSampleClick: () -> Unit,
+  onAnalyzeAiClick: (TimeFilter) -> Unit = {},
+  onToggleSmartAdvisor: (Boolean) -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val vehicle = uiState.vehicle
@@ -242,6 +245,18 @@ fun DashboardScreen(
         SpendingHeroCard(
           summary = currentSummary,
           vehicle = vehicle
+        )
+      }
+
+      // 1.5. AI Period Advisor & Insights Card
+      item {
+        AiInsightsCard(
+          analysis = uiState.aiAnalysis,
+          isAnalyzing = uiState.isAiAnalyzing,
+          currentFilter = uiState.selectedFilter,
+          isEnabled = uiState.isSmartAdvisorEnabled,
+          onToggleEnabled = onToggleSmartAdvisor,
+          onAnalyzeClick = { onAnalyzeAiClick(uiState.selectedFilter) }
         )
       }
 

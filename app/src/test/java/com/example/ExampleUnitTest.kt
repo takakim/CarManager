@@ -97,4 +97,51 @@ class ExampleUnitTest {
     ) // 300 / 10 = 30.0 MPG
     assertEquals(30.0, mpg, 0.001)
   }
+
+  @Test
+  fun testAiHeuristicPeriodAnalysis() {
+    val vehicle = com.example.data.model.VehicleProfile(
+      id = 1,
+      name = "Daily Sedan",
+      makeModel = "Toyota Corolla",
+      year = 2021,
+      currencySymbol = "$",
+      fuelType = com.example.data.model.FuelType.GASOLINE,
+      volumeUnit = com.example.data.model.VolumeUnit.LITERS,
+      distanceUnit = com.example.data.model.DistanceUnit.KILOMETERS
+    )
+
+    val summary = com.example.data.model.PeriodSummary(
+      timeFilter = com.example.data.model.TimeFilter.THIS_WEEK,
+      startDateMillis = 1000L,
+      endDateMillis = 5000L,
+      totalSpent = 75.0,
+      totalVolume = 50.0,
+      totalDistance = 600.0,
+      avgPricePaid = 1.50,
+      minPricePaid = 1.48,
+      maxPricePaid = 1.52,
+      averageEconomy = 8.33,
+      spendingPerDay = 10.71,
+      spendingPerWeek = 75.0,
+      spendingPerMonth = 325.0
+    )
+
+    val service = com.example.data.advisor.OnDeviceSmartAdvisorService()
+    val analysis = kotlinx.coroutines.runBlocking {
+      service.analyzePeriod(
+        vehicle = vehicle,
+        summary = summary,
+        periodLogs = emptyList(),
+        allTimeAvgPrice = 1.45,
+        allTimeSummary = summary
+      )
+    }
+
+    org.junit.Assert.assertNotNull(analysis)
+    org.junit.Assert.assertEquals(com.example.data.model.TimeFilter.THIS_WEEK, analysis.timeFilter)
+    org.junit.Assert.assertTrue("Score should be positive", analysis.efficiencyScore > 0)
+    org.junit.Assert.assertTrue("Recommendations should not be empty", analysis.recommendations.isNotEmpty())
+    org.junit.Assert.assertTrue("Forecast should not be blank", analysis.nextPeriodForecast.isNotBlank())
+  }
 }

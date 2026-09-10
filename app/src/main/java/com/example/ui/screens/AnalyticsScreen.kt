@@ -42,6 +42,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.ui.components.AiInsightsCard
 import com.example.data.model.FuelType
 import com.example.data.model.PeriodSummary
 import com.example.data.model.TimeFilter
@@ -52,6 +61,8 @@ import java.util.Locale
 @Composable
 fun AnalyticsScreen(
   uiState: UiState,
+  onAnalyzeAiClick: (TimeFilter) -> Unit = {},
+  onToggleSmartAdvisor: (Boolean) -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val vehicle = uiState.vehicle
@@ -62,6 +73,7 @@ fun AnalyticsScreen(
 
   val allTimeSum = uiState.allTimeSummary
   val sincePurchaseSum = uiState.sincePurchaseSummary
+  var selectedAiPeriod by remember { mutableStateOf(TimeFilter.THIS_WEEK) }
 
   LazyColumn(
     modifier = modifier
@@ -103,6 +115,45 @@ fun AnalyticsScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
+      }
+    }
+
+    // AI Period Cost & Efficiency Insights
+    item {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          listOf(TimeFilter.THIS_WEEK, TimeFilter.THIS_MONTH, TimeFilter.THIS_YEAR, TimeFilter.ALL_TIME).forEach { filter ->
+            val isSelected = selectedAiPeriod == filter
+            FilterChip(
+              selected = isSelected,
+              onClick = { selectedAiPeriod = filter },
+              label = {
+                Text(
+                  text = filter.title,
+                  fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+              },
+              colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+              )
+            )
+          }
+        }
+
+        AiInsightsCard(
+          analysis = if (uiState.aiAnalysis?.timeFilter == selectedAiPeriod) uiState.aiAnalysis else null,
+          isAnalyzing = uiState.isAiAnalyzing,
+          currentFilter = selectedAiPeriod,
+          isEnabled = uiState.isSmartAdvisorEnabled,
+          onToggleEnabled = onToggleSmartAdvisor,
+          onAnalyzeClick = { onAnalyzeAiClick(selectedAiPeriod) }
+        )
       }
     }
 
