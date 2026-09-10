@@ -12,9 +12,11 @@ import com.example.data.model.FuelType
 import com.example.data.model.PeriodSummary
 import com.example.data.model.PricePointData
 import com.example.data.model.TimeFilter
+import com.example.data.model.VehicleHistorySummary
 import com.example.data.model.VehicleProfile
 import com.example.data.model.VolumeUnit
 import com.example.data.repository.FuelTrackerRepository
+import com.example.data.util.ImportExportHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +31,8 @@ import java.util.Locale
 
 data class UiState(
   val vehicle: VehicleProfile = VehicleProfile(),
+  val allVehicles: List<VehicleProfile> = emptyList(),
+  val carHistorySummaries: List<VehicleHistorySummary> = emptyList(),
   val logs: List<FuelLog> = emptyList(),
   val selectedFilter: TimeFilter = TimeFilter.THIS_MONTH,
   val currentSummary: PeriodSummary = PeriodSummary(TimeFilter.THIS_MONTH, 0L, 0L),
@@ -40,7 +44,7 @@ data class UiState(
   val allTimeAvgPrice: Double = 0.0,
   val recentAvgPrice: Double = 0.0,
   val isLoading: Boolean = false,
-  val message: String? = null
+  val userMessage: String? = null
 )
 
 class FuelTrackerViewModel(application: Application) : AndroidViewModel(application) {
@@ -48,6 +52,9 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
 
   private val _selectedFilter = MutableStateFlow(TimeFilter.THIS_MONTH)
   val selectedFilter = _selectedFilter.asStateFlow()
+
+  private val _activeVehicleId = MutableStateFlow<Int?>(null)
+  val activeVehicleId = _activeVehicleId.asStateFlow()
 
   private val _uiState = MutableStateFlow(UiState(isLoading = true))
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -62,17 +69,34 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
 
     viewModelScope.launch {
       combine(
-        repository.defaultVehicle,
-        repository.getLogsForVehicle(1),
+        repository.allVehicles,
+        repository.allLogs,
+        _activeVehicleId,
         _selectedFilter
-      ) { vehicle, logs, filter ->
-        val safeVehicle = vehicle ?: VehicleProfile()
+      ) { allVehicles, allLogs, activeId, filter ->
+        // 1. Pick Active Vehicle:
+        val activeVehicle = if (activeId != null) {
+          allVehicles.find { it.id == activeId }
+            ?: allVehicles.firstOrNull { !it.isArchived }
+            ?: allVehicles.firstOrNull()
+            ?: VehicleProfile()
+        } else {
+          allVehicles.firstOrNull { !it.isArchived }
+            ?: allVehicles.firstOrNull()
+            ?: VehicleProfile()
+        }
 
-        val weekSum = calculatePeriodSummary(TimeFilter.THIS_WEEK, safeVehicle, logs)
-        val monthSum = calculatePeriodSummary(TimeFilter.THIS_MONTH, safeVehicle, logs)
-        val yearSum = calculatePeriodSummary(TimeFilter.THIS_YEAR, safeVehicle, logs)
-        val sincePurchaseSum = calculatePeriodSummary(TimeFilter.SINCE_PURCHASE, safeVehicle, logs)
-        val allTimeSum = calculatePeriodSummary(TimeFilter.ALL_TIME, safeVehicle, logs)
+        // 2. Logs for active vehicle
+        val activeLogs = allLogs
+          .filter { it.vehicleId == activeVehicle.id }
+          .sortedWith(compareByDescending<FuelLog> { it.odometer }.thenByDescending { it.timestamp })
+
+        // 3. Period Summaries for active vehicle
+        val weekSum = calculatePeriodSummary(TimeFilter.THIS_WEEK, activeVehicle, activeLogs)
+        val monthSum = calculatePeriodSummary(TimeFilter.THIS_MONTH, activeVehicle, activeLogs)
+        val yearSum = calculatePeriodSummary(TimeFilter.THIS_YEAR, activeVehicle, activeLogs)
+        val sincePurchaseSum = calculatePeriodSummary(TimeFilter.SINCE_PURCHASE, activeVehicle, activeLogs)
+        val allTimeSum = calculatePeriodSummary(TimeFilter.ALL_TIME, activeVehicle, activeLogs)
 
         val activeSum = when (filter) {
           TimeFilter.THIS_WEEK -> weekSum
@@ -82,22 +106,59 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
           TimeFilter.ALL_TIME -> allTimeSum
         }
 
-        val allTimeAvg = if (logs.isNotEmpty()) {
-          val totSpent = logs.sumOf { it.totalCost }
-          val totVol = logs.sumOf { it.amount }
+        val allTimeAvg = if (activeLogs.isNotEmpty()) {
+          val totSpent = activeLogs.sumOf { it.totalCost }
+          val totVol = activeLogs.sumOf { it.amount }
           if (totVol > 0) totSpent / totVol else 0.0
         } else 0.0
 
-        val recentLogs = logs.take(5)
+        val recentLogs = activeLogs.take(5)
         val recentAvg = if (recentLogs.isNotEmpty()) {
           val rSpent = recentLogs.sumOf { it.totalCost }
           val rVol = recentLogs.sumOf { it.amount }
           if (rVol > 0) rSpent / rVol else 0.0
         } else 0.0
 
+        // 4. Calculate Car History Summaries for ALL vehicles
+        val historySummaries = allVehicles.map { v ->
+          val vLogs = allLogs.filter { it.vehicleId == v.id }.sortedBy { it.odometer }
+          val totalSpent = vLogs.sumOf { it.totalCost }
+          val totalVol = vLogs.sumOf { it.amount }
+
+          val maxOdo = if (v.isArchived && v.archiveOdometer != null && v.archiveOdometer > 0) {
+            v.archiveOdometer
+          } else {
+            vLogs.maxOfOrNull { it.odometer } ?: v.initialOdometer
+          }
+
+          val totalDist = (maxOdo - v.initialOdometer).coerceAtLeast(0.0)
+          val avgEcon = EconomyUnit.calculate(totalDist, totalVol, v.economyUnit)
+          val costDist = if (totalDist > 0) totalSpent / totalDist else 0.0
+          val avgUnitPrice = if (totalVol > 0) totalSpent / totalVol else 0.0
+
+          val endDate = if (v.isArchived && v.archiveDateMillis != null) v.archiveDateMillis else System.currentTimeMillis()
+          val days = ((endDate - v.purchaseDateMillis) / (1000 * 60 * 60 * 24)).coerceAtLeast(1)
+
+          VehicleHistorySummary(
+            vehicle = v,
+            logsCount = vLogs.size,
+            totalSpent = totalSpent,
+            totalDistance = totalDist,
+            totalVolume = totalVol,
+            averageEconomy = avgEcon,
+            costPerDistance = costDist,
+            avgPricePaid = avgUnitPrice,
+            latestOdometer = maxOdo,
+            ownershipDays = days,
+            isActive = (v.id == activeVehicle.id)
+          )
+        }
+
         UiState(
-          vehicle = safeVehicle,
-          logs = logs,
+          vehicle = activeVehicle,
+          allVehicles = allVehicles,
+          carHistorySummaries = historySummaries,
+          logs = activeLogs,
           selectedFilter = filter,
           currentSummary = activeSum,
           weekSummary = weekSum,
@@ -107,7 +168,8 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
           allTimeSummary = allTimeSum,
           allTimeAvgPrice = allTimeAvg,
           recentAvgPrice = recentAvg,
-          isLoading = false
+          isLoading = false,
+          userMessage = _uiState.value.userMessage
         )
       }.collect { state ->
         _uiState.value = state
@@ -117,6 +179,10 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
 
   fun setFilter(filter: TimeFilter) {
     _selectedFilter.value = filter
+  }
+
+  fun selectVehicle(vehicleId: Int) {
+    _activeVehicleId.value = vehicleId
   }
 
   fun addLog(
@@ -173,16 +239,140 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
     }
   }
 
+  fun addNewVehicle(profile: VehicleProfile) {
+    viewModelScope.launch {
+      val newId = repository.createVehicle(profile.copy(id = 0, isArchived = false))
+      _activeVehicleId.value = newId.toInt()
+      _uiState.value = _uiState.value.copy(userMessage = "Added ${profile.name} to garage!")
+    }
+  }
+
+  fun archiveCurrentVehicle(
+    archiveDateMillis: Long,
+    archiveOdometer: Double,
+    reason: String,
+    createReplacement: Boolean,
+    replacementVehicle: VehicleProfile? = null
+  ) {
+    viewModelScope.launch {
+      val currentVehicle = _uiState.value.vehicle
+      repository.archiveVehicle(currentVehicle.id, archiveDateMillis, archiveOdometer, reason)
+
+      if (createReplacement && replacementVehicle != null) {
+        val newId = repository.createVehicle(
+          replacementVehicle.copy(
+            id = 0,
+            isArchived = false,
+            archiveDateMillis = null,
+            archiveOdometer = null,
+            archiveReason = ""
+          )
+        )
+        _activeVehicleId.value = newId.toInt()
+        _uiState.value = _uiState.value.copy(
+          userMessage = "${currentVehicle.name} archived. Switched to ${replacementVehicle.name}!"
+        )
+      } else {
+        // Switch to any remaining active vehicle
+        val remainingActive = _uiState.value.allVehicles.firstOrNull { it.id != currentVehicle.id && !it.isArchived }
+        if (remainingActive != null) {
+          _activeVehicleId.value = remainingActive.id
+        }
+        _uiState.value = _uiState.value.copy(
+          userMessage = "${currentVehicle.name} archived and saved to Car History."
+        )
+      }
+    }
+  }
+
+  fun reactivateVehicle(vehicleId: Int) {
+    viewModelScope.launch {
+      repository.reactivateVehicle(vehicleId)
+      _activeVehicleId.value = vehicleId
+      _uiState.value = _uiState.value.copy(userMessage = "Vehicle reactivated as active vehicle.")
+    }
+  }
+
+  fun deleteVehicle(vehicleId: Int) {
+    viewModelScope.launch {
+      repository.deleteVehicle(vehicleId)
+      val remaining = _uiState.value.allVehicles.filter { it.id != vehicleId }
+      val nextActive = remaining.firstOrNull { !it.isArchived } ?: remaining.firstOrNull()
+      if (nextActive != null) {
+        _activeVehicleId.value = nextActive.id
+      }
+      _uiState.value = _uiState.value.copy(userMessage = "Vehicle deleted from database.")
+    }
+  }
+
   fun loadSampleData() {
     viewModelScope.launch {
       _uiState.value = _uiState.value.copy(isLoading = true)
       repository.populateSampleData(_uiState.value.vehicle.id)
+      _uiState.value = _uiState.value.copy(userMessage = "Sample active & archived cars loaded!")
     }
   }
 
   fun clearAllData() {
     viewModelScope.launch {
       repository.clearAllData(_uiState.value.vehicle.id)
+      _uiState.value = _uiState.value.copy(userMessage = "Refuel logs cleared.")
+    }
+  }
+
+  fun clearMessage() {
+    _uiState.value = _uiState.value.copy(userMessage = null)
+  }
+
+  // --- Import / Export Handlers ---
+
+  fun exportCurrentVehicleCsv(): String {
+    return ImportExportHelper.exportToCsv(_uiState.value.vehicle, _uiState.value.logs)
+  }
+
+  fun exportCurrentVehicleJson(): String {
+    return ImportExportHelper.exportToJson(listOf(_uiState.value.vehicle), _uiState.value.logs)
+  }
+
+  fun exportAllDataJson(): String {
+    return ImportExportHelper.exportToJson(_uiState.value.allVehicles, _uiState.value.logs)
+  }
+
+  fun importCsv(csvText: String, replace: Boolean): Pair<Boolean, String> {
+    return try {
+      val parsedLogs = ImportExportHelper.parseCsv(csvText, _uiState.value.vehicle.id)
+      if (parsedLogs.isEmpty()) {
+        Pair(false, "No valid fuel log rows detected in CSV format.")
+      } else {
+        viewModelScope.launch {
+          repository.importLogs(_uiState.value.vehicle.id, parsedLogs, replace)
+        }
+        Pair(true, "Successfully imported ${parsedLogs.size} logs into ${_uiState.value.vehicle.name}.")
+      }
+    } catch (e: Exception) {
+      Pair(false, "Error parsing CSV: ${e.localizedMessage ?: "Unknown format error"}")
+    }
+  }
+
+  fun importBackupJson(jsonText: String, replaceAll: Boolean): Pair<Boolean, String> {
+    return try {
+      val backup = ImportExportHelper.parseJson(jsonText, _uiState.value.vehicle.id)
+      if (backup.logs.isEmpty() && backup.vehicles.isEmpty()) {
+        Pair(false, "No vehicles or refuels found in the JSON backup.")
+      } else {
+        viewModelScope.launch {
+          repository.importFullBackup(backup, replaceAll)
+          if (backup.vehicles.isNotEmpty()) {
+            _activeVehicleId.value = backup.vehicles.first().id
+          }
+        }
+        Pair(
+          true,
+          "Successfully imported ${backup.vehicles.size} vehicles and ${backup.logs.size} logs."
+        )
+      }
+    } catch (e: Exception) {
+      Pair(false, "Error reading JSON: ${e.localizedMessage ?: "Invalid JSON syntax"}")
     }
   }
 
@@ -221,82 +411,58 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
       }
       TimeFilter.SINCE_PURCHASE -> {
         startCal.timeInMillis = vehicle.purchaseDateMillis
-        startCal.set(Calendar.HOUR_OF_DAY, 0)
-        startCal.set(Calendar.MINUTE, 0)
-        startCal.set(Calendar.SECOND, 0)
-        startCal.set(Calendar.MILLISECOND, 0)
       }
       TimeFilter.ALL_TIME -> {
-        val earliestLogTime = allLogs.minOfOrNull { it.timestamp } ?: vehicle.purchaseDateMillis
-        startCal.timeInMillis = minOf(earliestLogTime, vehicle.purchaseDateMillis)
-        startCal.set(Calendar.HOUR_OF_DAY, 0)
-        startCal.set(Calendar.MINUTE, 0)
-        startCal.set(Calendar.SECOND, 0)
-        startCal.set(Calendar.MILLISECOND, 0)
+        val minTs = allLogs.minOfOrNull { it.timestamp } ?: vehicle.purchaseDateMillis
+        startCal.timeInMillis = minOf(minTs, vehicle.purchaseDateMillis)
       }
     }
 
     val startTime = startCal.timeInMillis
     val endTime = now.timeInMillis
 
-    val filteredLogs = allLogs.filter { it.timestamp >= startTime && it.timestamp <= endTime }
-      .sortedBy { it.odometer }
+    // Filter logs within this window
+    val periodLogs = allLogs.filter { it.timestamp in startTime..endTime }.sortedBy { it.odometer }
 
-    val totalSpent = filteredLogs.sumOf { it.totalCost }
-    val totalVolume = filteredLogs.sumOf { it.amount }
-    val logCount = filteredLogs.size
+    val totalSpent = periodLogs.sumOf { it.totalCost }
+    val totalVolume = periodLogs.sumOf { it.amount }
 
-    val avgPrice = if (totalVolume > 0) totalSpent / totalVolume else 0.0
-    val minPrice = filteredLogs.minOfOrNull { it.unitPrice } ?: 0.0
-    val maxPrice = filteredLogs.maxOfOrNull { it.unitPrice } ?: 0.0
-    val latestPrice = filteredLogs.maxByOrNull { it.timestamp }?.unitPrice
-      ?: (allLogs.maxByOrNull { it.timestamp }?.unitPrice ?: 0.0)
-
-    // Distance calculation
-    val totalDistance = when {
-      filter == TimeFilter.SINCE_PURCHASE -> {
-        val maxOdo = allLogs.maxOfOrNull { it.odometer } ?: vehicle.initialOdometer
-        (maxOdo - vehicle.initialOdometer).coerceAtLeast(0.0)
+    // Distance in period:
+    val totalDistance = if (periodLogs.isNotEmpty()) {
+      val minOdo = if (filter == TimeFilter.SINCE_PURCHASE) {
+        vehicle.initialOdometer
+      } else {
+        periodLogs.first().odometer
       }
-      filteredLogs.size >= 2 -> {
-        val minOdo = filteredLogs.minOf { it.odometer }
-        val maxOdo = filteredLogs.maxOf { it.odometer }
-        (maxOdo - minOdo).coerceAtLeast(0.0)
-      }
-      filteredLogs.size == 1 && filter != TimeFilter.ALL_TIME -> {
-        // Estimate distance since previous log or initial
-        val current = filteredLogs.first()
-        val prevLog = allLogs.filter { it.odometer < current.odometer }.maxByOrNull { it.odometer }
-        if (prevLog != null) (current.odometer - prevLog.odometer).coerceAtLeast(0.0) else 0.0
-      }
-      else -> {
-        if (allLogs.isNotEmpty()) {
-          val minOdo = allLogs.minOf { it.odometer }
-          val maxOdo = allLogs.maxOf { it.odometer }
-          (maxOdo - minOdo).coerceAtLeast(0.0)
-        } else 0.0
-      }
+      val maxOdo = periodLogs.last().odometer
+      (maxOdo - minOdo).coerceAtLeast(0.0)
+    } else {
+      0.0
     }
+
+    // Price extremes & latest
+    val unitPrices = periodLogs.map { it.unitPrice }.filter { it > 0 }
+    val avgPrice = if (unitPrices.isNotEmpty()) totalSpent / totalVolume else 0.0
+    val minPrice = unitPrices.minOrNull() ?: 0.0
+    val maxPrice = unitPrices.maxOrNull() ?: 0.0
+    val latestPrice = allLogs.maxByOrNull { it.timestamp }?.unitPrice ?: 0.0
 
     // Fuel economy
     val avgEconomy = EconomyUnit.calculate(totalDistance, totalVolume, vehicle.economyUnit)
-
     val costPerDist = if (totalDistance > 0) totalSpent / totalDistance else 0.0
 
-    // Days in period
-    val daysInPeriod = maxOf(1.0, (endTime - startTime).toDouble() / (1000 * 60 * 60 * 24))
-    val spendingPerDay = totalSpent / daysInPeriod
+    val daysDiff = ((endTime - startTime) / (1000 * 60 * 60 * 24)).coerceAtLeast(1)
+    val spendingPerDay = totalSpent / daysDiff
     val spendingPerWeek = spendingPerDay * 7.0
     val spendingPerMonth = spendingPerDay * 30.4375
 
-    // Build Chart Bars & Price Points
-    val chartBars = generateChartBars(filter, startTime, endTime, filteredLogs)
-    val pricePoints = filteredLogs.sortedBy { it.timestamp }.map { log ->
-      val df = SimpleDateFormat("MMM dd", Locale.getDefault())
+    val spendingBars = generateSpendingBars(filter, periodLogs, startTime, endTime)
+    val priceDateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+    val pricePoints = allLogs.sortedBy { it.timestamp }.takeLast(20).map {
       PricePointData(
-        dateLabel = df.format(Date(log.timestamp)),
-        price = log.unitPrice,
-        timestamp = log.timestamp
+        dateLabel = priceDateFormat.format(Date(it.timestamp)),
+        price = it.unitPrice,
+        timestamp = it.timestamp
       )
     }
 
@@ -306,7 +472,7 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
       endDateMillis = endTime,
       totalSpent = totalSpent,
       totalVolume = totalVolume,
-      logCount = logCount,
+      logCount = periodLogs.size,
       avgPricePaid = avgPrice,
       minPricePaid = minPrice,
       maxPricePaid = maxPrice,
@@ -318,16 +484,16 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
       spendingPerDay = spendingPerDay,
       spendingPerWeek = spendingPerWeek,
       spendingPerMonth = spendingPerMonth,
-      chartBars = chartBars,
+      chartBars = spendingBars,
       pricePoints = pricePoints
     )
   }
 
-  private fun generateChartBars(
+  private fun generateSpendingBars(
     filter: TimeFilter,
+    logs: List<FuelLog>,
     startTime: Long,
-    endTime: Long,
-    logs: List<FuelLog>
+    endTime: Long
   ): List<ChartBarData> {
     val bars = mutableListOf<ChartBarData>()
     val cal = Calendar.getInstance()
@@ -352,30 +518,21 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
         }
       }
       TimeFilter.THIS_MONTH -> {
+        val weeks = listOf("W1", "W2", "W3", "W4", "W5")
         cal.timeInMillis = startTime
-        val maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
-        var weekIndex = 1
-        var dayPointer = 1
-        while (dayPointer <= maxDays) {
-          val wStartCal = cal.clone() as Calendar
-          wStartCal.set(Calendar.DAY_OF_MONTH, dayPointer)
-          val wStart = wStartCal.timeInMillis
-          
-          val daysInBucket = minOf(7, maxDays - dayPointer + 1)
-          wStartCal.add(Calendar.DAY_OF_MONTH, daysInBucket)
-          val wEnd = wStartCal.timeInMillis
-
-          val weekLogs = logs.filter { it.timestamp in wStart until wEnd }
+        for (w in 0..4) {
+          val wStart = cal.timeInMillis
+          cal.add(Calendar.DAY_OF_MONTH, 7)
+          val wEnd = cal.timeInMillis
+          val wLogs = logs.filter { it.timestamp in wStart until wEnd }
           bars.add(
             ChartBarData(
-              label = "Wk $weekIndex",
-              amountSpent = weekLogs.sumOf { it.totalCost },
-              volumeAmount = weekLogs.sumOf { it.amount },
+              label = weeks[w],
+              amountSpent = wLogs.sumOf { it.totalCost },
+              volumeAmount = wLogs.sumOf { it.amount },
               timestamp = wStart
             )
           )
-          dayPointer += daysInBucket
-          weekIndex++
         }
       }
       TimeFilter.THIS_YEAR -> {
@@ -407,7 +564,6 @@ class FuelTrackerViewModel(application: Application) : AndroidViewModel(applicat
         }
       }
       TimeFilter.SINCE_PURCHASE, TimeFilter.ALL_TIME -> {
-        // Group by month over the past 6-12 months or purchase period
         val df = SimpleDateFormat("MMM yy", Locale.getDefault())
         cal.timeInMillis = startTime
         cal.set(Calendar.DAY_OF_MONTH, 1)

@@ -69,6 +69,7 @@ fun DashboardScreen(
   onDeleteLogClick: (FuelLog) -> Unit,
   onViewAllLogsClick: () -> Unit,
   onOpenSettingsClick: () -> Unit,
+  onSelectVehicle: (Int) -> Unit = {},
   onLoadSampleClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -90,7 +91,7 @@ fun DashboardScreen(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
           Text(
             text = "Fuel & Energy Tracker",
             style = MaterialTheme.typography.headlineSmall,
@@ -98,7 +99,7 @@ fun DashboardScreen(
             color = MaterialTheme.colorScheme.onBackground
           )
           Text(
-            text = "${vehicle.name} • ${vehicle.makeModel}",
+            text = "${vehicle.name} • ${vehicle.makeModel}${if (vehicle.isArchived) " (Archived)" else ""}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -113,6 +114,45 @@ fun DashboardScreen(
             contentDescription = "Vehicle Settings",
             tint = MaterialTheme.colorScheme.primary
           )
+        }
+      }
+    }
+
+    // Multiple Vehicles Switcher (if user has multiple cars in garage)
+    if (uiState.allVehicles.size > 1) {
+      item {
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = "Car:",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+          uiState.allVehicles.forEach { v ->
+            val isSelected = v.id == vehicle.id
+            FilterChip(
+              selected = isSelected,
+              onClick = { onSelectVehicle(v.id) },
+              label = {
+                Text(
+                  text = "${v.name}${if (v.isArchived) " (Archived)" else ""}",
+                  fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+              },
+              leadingIcon = {
+                Icon(
+                  imageVector = if (v.fuelType == FuelType.ELECTRIC) Icons.Default.ElectricBolt else Icons.Default.LocalGasStation,
+                  contentDescription = null,
+                  modifier = Modifier.size(16.dp)
+                )
+              }
+            )
+          }
         }
       }
     }

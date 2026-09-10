@@ -18,5 +18,9 @@ data class VehicleProfile(
   val distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
   val volumeUnit: VolumeUnit = VolumeUnit.LITERS,
   val economyUnit: EconomyUnit = EconomyUnit.L_PER_100KM,
-  val tankCapacity: Double = 50.0
+  val tankCapacity: Double = 50.0,
+  val isArchived: Boolean = false,
+  val archiveDateMillis: Long? = null,
+  val archiveOdometer: Double? = null,
+  val archiveReason: String = ""
 )

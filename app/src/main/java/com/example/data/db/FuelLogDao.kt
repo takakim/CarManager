@@ -17,6 +17,12 @@ interface FuelLogDao {
   @Query("SELECT * FROM fuel_logs WHERE vehicleId = :vehicleId ORDER BY odometer DESC, timestamp DESC")
   suspend fun getLogsListForVehicle(vehicleId: Int): List<FuelLog>
 
+  @Query("SELECT * FROM fuel_logs ORDER BY timestamp DESC")
+  fun getAllLogs(): Flow<List<FuelLog>>
+
+  @Query("SELECT * FROM fuel_logs ORDER BY timestamp DESC")
+  suspend fun getAllLogsDirect(): List<FuelLog>
+
   @Query("SELECT * FROM fuel_logs WHERE id = :logId")
   suspend fun getLogById(logId: Long): FuelLog?
 
@@ -37,4 +43,7 @@ interface FuelLogDao {
 
   @Query("DELETE FROM fuel_logs WHERE vehicleId = :vehicleId")
   suspend fun deleteAllLogsForVehicle(vehicleId: Int)
+
+  @Query("DELETE FROM fuel_logs")
+  suspend fun clearAllLogs()
 }

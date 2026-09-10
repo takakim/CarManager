@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,8 +32,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,6 +53,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.FuelLog
 import com.example.data.model.FuelType
 import com.example.ui.components.AddEditFuelLogDialog
+import com.example.ui.components.ArchiveExchangeDialog
+import com.example.ui.components.ImportExportDialog
 import com.example.ui.components.VehicleSettingsDialog
 import com.example.ui.viewmodel.FuelTrackerViewModel
 
@@ -62,6 +70,7 @@ fun MainScreen(
   viewModel: FuelTrackerViewModel,
   modifier: Modifier = Modifier
 ) {
+  val context = LocalContext.current
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   var currentTab by remember { mutableStateOf(MainTab.DASHBOARD) }
 
@@ -69,11 +78,21 @@ fun MainScreen(
   var editingLog by remember { mutableStateOf<FuelLog?>(null) }
   var deletingLog by remember { mutableStateOf<FuelLog?>(null) }
   var showVehicleSettingsDialog by remember { mutableStateOf(false) }
+  var showExchangeDialog by remember { mutableStateOf(false) }
+  var showImportExportDialog by remember { mutableStateOf(false) }
 
-  val isElectric = uiState.vehicle.fuelType == FuelType.ELECTRIC
+  val snackbarHostState = remember { SnackbarHostState() }
+
+  LaunchedEffect(uiState.userMessage) {
+    uiState.userMessage?.let { msg ->
+      Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+      viewModel.clearMessage()
+    }
+  }
 
   Scaffold(
     modifier = modifier.fillMaxSize(),
+    snackbarHost = { SnackbarHost(snackbarHostState) },
     bottomBar = {
       NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -138,6 +157,7 @@ fun MainScreen(
             onDeleteLogClick = { deletingLog = it },
             onViewAllLogsClick = { currentTab = MainTab.LOGS },
             onOpenSettingsClick = { showVehicleSettingsDialog = true },
+            onSelectVehicle = { viewModel.selectVehicle(it) },
             onLoadSampleClick = { viewModel.loadSampleData() }
           )
         }
@@ -159,6 +179,10 @@ fun MainScreen(
           VehicleProfileScreen(
             uiState = uiState,
             onEditVehicleClick = { showVehicleSettingsDialog = true },
+            onExchangeVehicleClick = { showExchangeDialog = true },
+            onImportExportClick = { showImportExportDialog = true },
+            onSelectVehicleAsActive = { viewModel.selectVehicle(it) },
+            onDeleteVehicle = { viewModel.deleteVehicle(it) },
             onLoadSampleClick = { viewModel.loadSampleData() },
             onClearDataClick = { viewModel.clearAllData() }
           )
@@ -244,6 +268,40 @@ fun MainScreen(
         viewModel.updateVehicleProfile(updated)
         showVehicleSettingsDialog = false
       }
+    )
+  }
+
+  // Archive / Exchange Dialog
+  if (showExchangeDialog) {
+    val highestOdo = uiState.logs.maxOfOrNull { it.odometer } ?: uiState.vehicle.initialOdometer
+    ArchiveExchangeDialog(
+      currentVehicle = uiState.vehicle,
+      latestOdometer = highestOdo,
+      onDismiss = { showExchangeDialog = false },
+      onConfirm = { archiveDateMillis, archiveOdometer, reason, createReplacement, replacementVehicle ->
+        viewModel.archiveCurrentVehicle(
+          archiveDateMillis = archiveDateMillis,
+          archiveOdometer = archiveOdometer,
+          reason = reason,
+          createReplacement = createReplacement,
+          replacementVehicle = replacementVehicle
+        )
+        showExchangeDialog = false
+      }
+    )
+  }
+
+  // Import / Export Dialog
+  if (showImportExportDialog) {
+    ImportExportDialog(
+      vehicle = uiState.vehicle,
+      logs = uiState.logs,
+      onDismiss = { showImportExportDialog = false },
+      onGenerateCsv = { viewModel.exportCurrentVehicleCsv() },
+      onGenerateJson = { viewModel.exportCurrentVehicleJson() },
+      onGenerateAllJson = { viewModel.exportAllDataJson() },
+      onImportCsv = { csvText, replace -> viewModel.importCsv(csvText, replace) },
+      onImportJson = { jsonText, replace -> viewModel.importBackupJson(jsonText, replace) }
     )
   }
 }
