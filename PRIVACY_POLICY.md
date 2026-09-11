@@ -77,4 +77,4 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 If you have any questions, concerns, or requests regarding this Privacy Policy, you may contact us at:
 
 - **Website**: [https://takaki.today](https://takaki.today)
-- **Contact Email**: `massanori@gmail.com` (or `support@takaki.today`)
+- **Contact Email**: `play@takaki.today`
