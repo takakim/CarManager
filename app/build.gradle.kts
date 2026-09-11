@@ -7,6 +7,7 @@ plugins {
   alias(libs.plugins.roborazzi)
   alias(libs.plugins.secrets)
   alias(libs.plugins.google.services)
+  alias(libs.plugins.kover)
 }
 
 android {
@@ -50,7 +51,10 @@ android {
         signingConfigs.getByName("debugConfig")
       }
     }
-    debug { signingConfig = signingConfigs.getByName("debugConfig") }
+    debug {
+      signingConfig = signingConfigs.getByName("debugConfig")
+      enableUnitTestCoverage = true
+    }
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -141,4 +145,21 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
+}
+
+kover {
+  reports {
+    filters {
+      excludes {
+        androidGeneratedClasses()
+        classes(
+          "*ComposableSingletons*",
+          "*Preview*Kt",
+          "*_Factory*",
+          "*_Impl*",
+          "today.takaki.BuildConfig"
+        )
+      }
+    }
+  }
 }

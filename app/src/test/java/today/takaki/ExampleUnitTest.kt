@@ -1,8 +1,20 @@
-package com.example
+package today.takaki
 
-import com.example.data.model.FuelLog
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import today.takaki.data.advisor.OnDeviceSmartAdvisorService
+import today.takaki.data.model.DistanceUnit
+import today.takaki.data.model.EconomyUnit
+import today.takaki.data.model.FuelLog
+import today.takaki.data.model.FuelType
+import today.takaki.data.model.PeriodSummary
+import today.takaki.data.model.TimeFilter
+import today.takaki.data.model.VehicleProfile
+import today.takaki.data.model.VolumeUnit
+import today.takaki.data.util.ImportExportHelper
 
 class ExampleUnitTest {
 
@@ -40,16 +52,16 @@ class ExampleUnitTest {
 
   @Test
   fun testCsvExportAndParseRoundTrip() {
-    val vehicle = com.example.data.model.VehicleProfile(
+    val vehicle = VehicleProfile(
       id = 1,
       name = "Civic",
       makeModel = "Honda Civic",
       year = 2022,
-      fuelType = com.example.data.model.FuelType.GASOLINE,
+      fuelType = FuelType.GASOLINE,
       initialOdometer = 10000.0,
       currencySymbol = "$",
-      distanceUnit = com.example.data.model.DistanceUnit.KILOMETERS,
-      volumeUnit = com.example.data.model.VolumeUnit.LITERS
+      distanceUnit = DistanceUnit.KILOMETERS,
+      volumeUnit = VolumeUnit.LITERS
     )
 
     val logs = listOf(
@@ -68,8 +80,8 @@ class ExampleUnitTest {
       )
     )
 
-    val csv = com.example.data.util.ImportExportHelper.exportToCsv(vehicle, logs)
-    val parsed = com.example.data.util.ImportExportHelper.parseCsv(csv, vehicle.id)
+    val csv = ImportExportHelper.exportToCsv(vehicle, logs)
+    val parsed = ImportExportHelper.parseCsv(csv, vehicle.id)
 
     assertEquals(1, parsed.size)
     assertEquals(10500.0, parsed[0].odometer, 0.001)
@@ -82,37 +94,37 @@ class ExampleUnitTest {
   @Test
   fun testEconomyUnitCalculation() {
     // 500 km on 35 Liters
-    val lPer100 = com.example.data.model.EconomyUnit.calculate(
+    val lPer100 = EconomyUnit.calculate(
       500.0,
       35.0,
-      com.example.data.model.EconomyUnit.L_PER_100KM
+      EconomyUnit.L_PER_100KM
     ) // (35 / 500) * 100 = 7.0 L/100km
     assertEquals(7.0, lPer100, 0.001)
 
     // 300 miles on 10 gallons
-    val mpg = com.example.data.model.EconomyUnit.calculate(
+    val mpg = EconomyUnit.calculate(
       300.0,
       10.0,
-      com.example.data.model.EconomyUnit.MPG_US
+      EconomyUnit.MPG_US
     ) // 300 / 10 = 30.0 MPG
     assertEquals(30.0, mpg, 0.001)
   }
 
   @Test
   fun testAiHeuristicPeriodAnalysis() {
-    val vehicle = com.example.data.model.VehicleProfile(
+    val vehicle = VehicleProfile(
       id = 1,
       name = "Daily Sedan",
       makeModel = "Toyota Corolla",
       year = 2021,
       currencySymbol = "$",
-      fuelType = com.example.data.model.FuelType.GASOLINE,
-      volumeUnit = com.example.data.model.VolumeUnit.LITERS,
-      distanceUnit = com.example.data.model.DistanceUnit.KILOMETERS
+      fuelType = FuelType.GASOLINE,
+      volumeUnit = VolumeUnit.LITERS,
+      distanceUnit = DistanceUnit.KILOMETERS
     )
 
-    val summary = com.example.data.model.PeriodSummary(
-      timeFilter = com.example.data.model.TimeFilter.THIS_WEEK,
+    val summary = PeriodSummary(
+      timeFilter = TimeFilter.THIS_WEEK,
       startDateMillis = 1000L,
       endDateMillis = 5000L,
       totalSpent = 75.0,
@@ -127,8 +139,8 @@ class ExampleUnitTest {
       spendingPerMonth = 325.0
     )
 
-    val service = com.example.data.advisor.OnDeviceSmartAdvisorService()
-    val analysis = kotlinx.coroutines.runBlocking {
+    val service = OnDeviceSmartAdvisorService()
+    val analysis = runBlocking {
       service.analyzePeriod(
         vehicle = vehicle,
         summary = summary,
@@ -138,10 +150,10 @@ class ExampleUnitTest {
       )
     }
 
-    org.junit.Assert.assertNotNull(analysis)
-    org.junit.Assert.assertEquals(com.example.data.model.TimeFilter.THIS_WEEK, analysis.timeFilter)
-    org.junit.Assert.assertTrue("Score should be positive", analysis.efficiencyScore > 0)
-    org.junit.Assert.assertTrue("Recommendations should not be empty", analysis.recommendations.isNotEmpty())
-    org.junit.Assert.assertTrue("Forecast should not be blank", analysis.nextPeriodForecast.isNotBlank())
+    assertNotNull(analysis)
+    assertEquals(TimeFilter.THIS_WEEK, analysis.timeFilter)
+    assertTrue("Score should be positive", analysis.efficiencyScore > 0)
+    assertTrue("Recommendations should not be empty", analysis.recommendations.isNotEmpty())
+    assertTrue("Forecast should not be blank", analysis.nextPeriodForecast.isNotBlank())
   }
 }
