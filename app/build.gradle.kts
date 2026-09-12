@@ -17,7 +17,7 @@ android {
   defaultConfig {
     applicationId = "today.takaki.fueltracker.vxqmkz"
     minSdk = 24
-    targetSdk = 36
+    targetSdk = 37
     versionCode = 5
     versionName = "1.0"
 

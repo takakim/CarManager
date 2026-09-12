@@ -123,6 +123,7 @@ class LocalizationTest {
   fun `verify all enum nameRes resolve non-empty strings across all supported locales`() {
     val locales = listOf(
       Locale.forLanguageTag("en-US"),
+      Locale.forLanguageTag("en-GB"),
       Locale.forLanguageTag("pt-PT"),
       Locale.forLanguageTag("pt-BR"),
       Locale.forLanguageTag("fr-FR"),
