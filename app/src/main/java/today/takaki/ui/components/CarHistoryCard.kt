@@ -45,6 +45,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import today.takaki.R
 import today.takaki.data.model.FuelType
 import today.takaki.data.model.VehicleHistorySummary
 import java.text.SimpleDateFormat
@@ -72,7 +75,7 @@ fun CarHistoryCard(
   val endDateStr = if (vehicle.isArchived && vehicle.archiveDateMillis != null) {
     dateFormat.format(Date(vehicle.archiveDateMillis))
   } else {
-    "Present"
+    stringResource(R.string.date_present)
   }
 
   Card(
@@ -123,7 +126,7 @@ fun CarHistoryCard(
             fontWeight = FontWeight.Bold
           )
           Text(
-            text = "${vehicle.year} ${vehicle.makeModel} • ${vehicle.fuelType.displayName}",
+            text = "${vehicle.year} ${vehicle.makeModel} • ${stringResource(vehicle.fuelType.nameRes)}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -150,7 +153,7 @@ fun CarHistoryCard(
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-              text = if (summary.isActive) "Active" else "Archived",
+              text = if (summary.isActive) stringResource(R.string.active_badge) else stringResource(R.string.archived_badge),
               fontSize = 11.sp,
               fontWeight = FontWeight.Bold,
               color = if (summary.isActive) Color(0xFF059669) else Color(0xFFB45309)
@@ -161,6 +164,22 @@ fun CarHistoryCard(
 
       // Archive reason banner if archived
       if (vehicle.isArchived && vehicle.archiveReason.isNotBlank()) {
+        val displayReason = when {
+          vehicle.archiveReason.startsWith("Traded in / Exchanged") -> {
+            if (vehicle.archiveReason.contains("Honda Civic")) {
+              "${stringResource(R.string.reason_traded_in)} (Honda Civic)"
+            } else {
+              stringResource(R.string.reason_traded_in)
+            }
+          }
+          vehicle.archiveReason == "Sold to Private Buyer" -> stringResource(R.string.reason_sold_private)
+          vehicle.archiveReason == "Lease Ended / Returned" -> stringResource(R.string.reason_lease_ended)
+          vehicle.archiveReason == "Company / Fleet Change" -> stringResource(R.string.reason_fleet_change)
+          vehicle.archiveReason == "Scrapped / Retired" -> stringResource(R.string.reason_scrapped)
+          vehicle.archiveReason == "Other" -> stringResource(R.string.reason_other)
+          else -> vehicle.archiveReason
+        }
+
         Spacer(modifier = Modifier.height(10.dp))
         Surface(
           shape = RoundedCornerShape(8.dp),
@@ -168,7 +187,7 @@ fun CarHistoryCard(
           modifier = Modifier.fillMaxWidth()
         ) {
           Text(
-            text = "Reason: ${vehicle.archiveReason}",
+            text = stringResource(R.string.archive_reason_fmt, displayReason),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
@@ -187,12 +206,12 @@ fun CarHistoryCard(
       ) {
         // Metric 1: Running Costs
         HistoryMetricBox(
-          title = "Total Running Costs",
+          title = stringResource(R.string.total_running_costs),
           value = "$currency${String.format(Locale.getDefault(), "%,.2f", summary.totalSpent)}",
           subtitle = if (summary.totalDistance > 0) {
             "$currency${String.format(Locale.getDefault(), "%.3f", summary.costPerDistance)} / $distUnit"
           } else {
-            "No driving logged"
+            stringResource(R.string.no_driving_logged)
           },
           icon = Icons.Default.Paid,
           iconTint = Color(0xFF10B981),
@@ -201,13 +220,13 @@ fun CarHistoryCard(
 
         // Metric 2: Total Average Consumption
         HistoryMetricBox(
-          title = "Total Avg Consumption",
+          title = stringResource(R.string.total_avg_consumption),
           value = if (summary.averageEconomy > 0) {
             String.format(Locale.getDefault(), "%.1f %s", summary.averageEconomy, econUnit)
           } else {
             "--"
           },
-          subtitle = "${String.format(Locale.getDefault(), "%.1f", summary.totalVolume)} $volUnit total consumed",
+          subtitle = stringResource(R.string.total_consumed_fmt, String.format(Locale.getDefault(), "%.1f", summary.totalVolume), volUnit),
           icon = if (isElectric) Icons.Default.ElectricBolt else Icons.Default.LocalGasStation,
           iconTint = if (isElectric) Color(0xFF00B0FF) else Color(0xFFF59E0B),
           modifier = Modifier.weight(1f)
@@ -222,18 +241,28 @@ fun CarHistoryCard(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
       ) {
         HistoryMetricBox(
-          title = "Distance Driven",
+          title = stringResource(R.string.distance_driven),
           value = "${String.format(Locale.getDefault(), "%,.0f", summary.totalDistance)} $distUnit",
-          subtitle = "Odo: ${String.format(Locale.getDefault(), "%.0f", vehicle.initialOdometer)} -> ${String.format(Locale.getDefault(), "%.0f", summary.latestOdometer)}",
+          subtitle = stringResource(
+            R.string.odo_range_fmt,
+            String.format(Locale.getDefault(), "%,.0f", vehicle.initialOdometer),
+            String.format(Locale.getDefault(), "%,.0f", summary.latestOdometer)
+          ),
           icon = Icons.Default.Speed,
           iconTint = Color(0xFF8B5CF6),
           modifier = Modifier.weight(1f)
         )
 
+        val refuelsText = if (summary.logsCount == 1) {
+          stringResource(R.string.refuel_count_fmt, summary.logsCount)
+        } else {
+          stringResource(R.string.refuels_count_fmt, summary.logsCount)
+        }
+
         HistoryMetricBox(
-          title = "Ownership Period",
-          value = "${summary.ownershipDays} days",
-          subtitle = "$purchaseDateStr - $endDateStr (${summary.logsCount} refuels)",
+          title = stringResource(R.string.ownership_period),
+          value = stringResource(R.string.days_count_fmt, summary.ownershipDays),
+          subtitle = "$purchaseDateStr - $endDateStr ($refuelsText)",
           icon = Icons.Default.DirectionsCar,
           iconTint = Color(0xFF3B82F6),
           modifier = Modifier.weight(1f)
@@ -253,33 +282,36 @@ fun CarHistoryCard(
             onClick = onSelectAsActive,
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            modifier = Modifier.weight(1f)
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+            modifier = Modifier.weight(1.1f)
           ) {
             Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Set as Active", fontSize = 13.sp)
+            Text(stringResource(R.string.set_as_active), fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
           }
         } else {
           Button(
             onClick = onExchangeClick,
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            modifier = Modifier.weight(1f)
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+            modifier = Modifier.weight(1.1f)
           ) {
             Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Exchange / Archive", fontSize = 13.sp)
+            Text(stringResource(R.string.exchange_archive_btn), fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
           }
         }
 
         OutlinedButton(
           onClick = onExportClick,
           shape = RoundedCornerShape(10.dp),
-          modifier = Modifier.weight(0.7f)
+          contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+          modifier = Modifier.weight(0.9f)
         ) {
           Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(14.dp))
           Spacer(modifier = Modifier.width(4.dp))
-          Text("Export", fontSize = 13.sp)
+          Text(stringResource(R.string.export_btn), fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
 
         if (vehicle.isArchived) {
@@ -290,7 +322,7 @@ fun CarHistoryCard(
             modifier = Modifier.size(42.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
           ) {
-            Icon(Icons.Default.DeleteOutline, contentDescription = "Delete", modifier = Modifier.size(18.dp))
+            Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.action_delete), modifier = Modifier.size(18.dp))
           }
         }
       }

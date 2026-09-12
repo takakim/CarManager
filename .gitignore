@@ -15,3 +15,5 @@ debug.keystore
 *.jks
 *.keystore
 .vscode/
+*.csv
+screenshots/

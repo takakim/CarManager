@@ -69,6 +69,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import today.takaki.R
 import today.takaki.data.model.AiFinding
 import today.takaki.data.model.AiPeriodAnalysis
 import today.takaki.data.model.AiRecommendation
@@ -125,13 +128,13 @@ fun AiInsightsCard(
           }
           Column {
             Text(
-              text = "On-Device Smart Advisor",
+              text = stringResource(R.string.smart_advisor_card_title),
               style = MaterialTheme.typography.titleSmall,
               fontWeight = FontWeight.Bold,
               color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-              text = "Disabled • 100% free on-device intelligence",
+              text = stringResource(R.string.smart_advisor_disabled_sub),
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -209,13 +212,13 @@ fun AiInsightsCard(
 
           Column {
             Text(
-              text = "Smart Period Advisor",
+              text = stringResource(R.string.smart_advisor_card_title),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold,
               color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-              text = "On-Device Phone Intelligence • ${currentFilter.title}",
+              text = stringResource(R.string.smart_advisor_card_subtitle, stringResource(currentFilter.nameRes)),
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -243,7 +246,7 @@ fun AiInsightsCard(
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = ClipData.newPlainText("Vehicle Smart Report", shareText)
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(context, "Analysis report copied to clipboard", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
               },
               modifier = Modifier.size(32.dp)
             ) {
@@ -294,12 +297,12 @@ fun AiInsightsCard(
             )
             Column {
               Text(
-                text = "Analyzing ${currentFilter.title} on device...",
+                text = stringResource(R.string.advisor_analyzing_title, stringResource(currentFilter.nameRes)),
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.bodyMedium
               )
               Text(
-                text = "Processing fuel price volatility, driving distance & consumption",
+                text = stringResource(R.string.advisor_analyzing_sub),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
               )
@@ -318,13 +321,13 @@ fun AiInsightsCard(
             verticalArrangement = Arrangement.spacedBy(10.dp)
           ) {
             Text(
-              text = "Get Instant Smart Spending Breakdown",
+              text = stringResource(R.string.instant_breakdown_title),
               style = MaterialTheme.typography.titleSmall,
               fontWeight = FontWeight.Bold,
               color = MaterialTheme.colorScheme.primary
             )
             Text(
-              text = "Use your phone's built-in computational engine to analyze ${currentFilter.title.lowercase()} refuels and see if price shifts or mileage drove your costs — 100% free with zero API charges.",
+              text = stringResource(R.string.instant_breakdown_desc, stringResource(currentFilter.nameRes)),
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -342,7 +345,7 @@ fun AiInsightsCard(
                 modifier = Modifier.size(16.dp)
               )
               Spacer(modifier = Modifier.width(6.dp))
-              Text("Analyze ${currentFilter.title}", fontWeight = FontWeight.Bold)
+              Text(stringResource(R.string.analyze_filter_btn, stringResource(currentFilter.nameRes)), fontWeight = FontWeight.Bold)
             }
           }
         }
@@ -422,7 +425,7 @@ fun AiInsightsCard(
                 )
                 Column {
                   Text(
-                    text = "Cost Driver Attribution",
+                    text = stringResource(R.string.cost_driver_attribution),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -441,7 +444,7 @@ fun AiInsightsCard(
             if (analysis.keyFindings.isNotEmpty()) {
               Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                  text = "Key Observations",
+                  text = stringResource(R.string.key_observations),
                   style = MaterialTheme.typography.labelSmall,
                   fontWeight = FontWeight.Bold,
                   color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -457,7 +460,7 @@ fun AiInsightsCard(
             if (analysis.recommendations.isNotEmpty()) {
               Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                  text = "Tailored Recommendations",
+                  text = stringResource(R.string.tailored_recommendations),
                   style = MaterialTheme.typography.labelSmall,
                   fontWeight = FontWeight.Bold,
                   color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -488,7 +491,7 @@ fun AiInsightsCard(
                 )
                 Column {
                   Text(
-                    text = "Budget Forecast",
+                    text = stringResource(R.string.budget_forecast),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.tertiary
@@ -542,7 +545,10 @@ fun AiInsightsCard(
                   modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Re-Analyze", fontSize = 12.sp)
+                Text(
+                  text = stringResource(R.string.analyze_period_btn),
+                  fontSize = 12.sp
+                )
               }
             }
           }
@@ -641,9 +647,11 @@ private fun RecommendationRow(rec: AiRecommendation) {
             text = rec.title,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
           )
           if (!rec.estimatedSavings.isNullOrBlank()) {
+            Spacer(modifier = Modifier.width(8.dp))
             Surface(
               shape = RoundedCornerShape(6.dp),
               color = Color(0xFF10B981).copy(alpha = 0.15f)
@@ -653,6 +661,9 @@ private fun RecommendationRow(rec: AiRecommendation) {
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF059669),
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
               )
             }

@@ -49,6 +49,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.DistanceUnit
 import today.takaki.data.model.EconomyUnit
 import today.takaki.data.model.FuelType
@@ -117,7 +119,7 @@ fun VehicleSettingsDialog(
           modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-          text = "Vehicle Setup & Units",
+          text = stringResource(R.string.vehicle_settings_title),
           style = MaterialTheme.typography.titleLarge,
           fontWeight = FontWeight.Bold
         )
@@ -132,7 +134,7 @@ fun VehicleSettingsDialog(
       ) {
         // Section 1: Vehicle Information
         Text(
-          text = "Vehicle Information",
+          text = stringResource(R.string.vehicle_profile_title),
           style = MaterialTheme.typography.labelLarge,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.primary
@@ -141,7 +143,7 @@ fun VehicleSettingsDialog(
         OutlinedTextField(
           value = name,
           onValueChange = { name = it },
-          label = { Text("Vehicle Nickname") },
+          label = { Text(stringResource(R.string.vehicle_name)) },
           placeholder = { Text("e.g. My Civic, Tesla Model Y") },
           singleLine = true,
           modifier = Modifier.fillMaxWidth()
@@ -154,7 +156,7 @@ fun VehicleSettingsDialog(
           OutlinedTextField(
             value = makeModel,
             onValueChange = { makeModel = it },
-            label = { Text("Make & Model") },
+            label = { Text(stringResource(R.string.make_and_model)) },
             placeholder = { Text("Toyota RAV4") },
             singleLine = true,
             modifier = Modifier.weight(1.3f)
@@ -163,7 +165,7 @@ fun VehicleSettingsDialog(
           OutlinedTextField(
             value = yearStr,
             onValueChange = { yearStr = it },
-            label = { Text("Year") },
+            label = { Text(stringResource(R.string.vehicle_year)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             modifier = Modifier.weight(0.7f)
@@ -177,10 +179,10 @@ fun VehicleSettingsDialog(
           modifier = Modifier.fillMaxWidth()
         ) {
           OutlinedTextField(
-            value = selectedFuelType.displayName,
+            value = stringResource(selectedFuelType.nameRes),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Fuel / Energy Type") },
+            label = { Text(stringResource(R.string.fuel_type_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fuelTypeExpanded) },
             modifier = Modifier
               .menuAnchor()
@@ -192,7 +194,7 @@ fun VehicleSettingsDialog(
           ) {
             FuelType.values().forEach { type ->
               DropdownMenuItem(
-                text = { Text(type.displayName) },
+                text = { Text(stringResource(type.nameRes)) },
                 onClick = {
                   selectedFuelType = type
                   if (type == FuelType.ELECTRIC) {
@@ -215,7 +217,7 @@ fun VehicleSettingsDialog(
 
         // Section 2: Ownership History
         Text(
-          text = "Ownership & Starting History",
+          text = stringResource(R.string.ownership_history_title),
           style = MaterialTheme.typography.labelLarge,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.primary
@@ -237,7 +239,7 @@ fun VehicleSettingsDialog(
           ) {
             Column {
               Text(
-                text = "Purchase Date (Since I bought it)",
+                text = stringResource(R.string.purchase_date_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
               )
@@ -250,7 +252,7 @@ fun VehicleSettingsDialog(
             IconButton(onClick = { datePickerDialog.show() }) {
               Icon(
                 imageVector = Icons.Default.CalendarToday,
-                contentDescription = "Select Purchase Date",
+                contentDescription = stringResource(R.string.select_purchase_date_cd),
                 tint = MaterialTheme.colorScheme.primary
               )
             }
@@ -261,8 +263,8 @@ fun VehicleSettingsDialog(
         OutlinedTextField(
           value = initialOdometerStr,
           onValueChange = { initialOdometerStr = it },
-          label = { Text("Starting Odometer (${distanceUnit.symbol})") },
-          placeholder = { Text("e.g. 0 or 15000") },
+          label = { Text("${stringResource(R.string.initial_odometer_label)} (${distanceUnit.symbol})") },
+          placeholder = { Text(stringResource(R.string.initial_odometer_placeholder)) },
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
           singleLine = true,
           modifier = Modifier.fillMaxWidth()
@@ -272,7 +274,7 @@ fun VehicleSettingsDialog(
 
         // Section 3: Currency, Units & Fuel Economy
         Text(
-          text = "Currency & Display Units",
+          text = stringResource(R.string.settings_units),
           style = MaterialTheme.typography.labelLarge,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.primary
@@ -286,7 +288,7 @@ fun VehicleSettingsDialog(
           OutlinedTextField(
             value = currencySymbol,
             onValueChange = { currencySymbol = it },
-            label = { Text("Currency") },
+            label = { Text(stringResource(R.string.currency_label)) },
             placeholder = { Text("$, €, £") },
             singleLine = true,
             modifier = Modifier.weight(1f)
@@ -295,7 +297,7 @@ fun VehicleSettingsDialog(
           OutlinedTextField(
             value = tankCapacityStr,
             onValueChange = { tankCapacityStr = it },
-            label = { Text("Tank / Battery (${volumeUnit.symbol})") },
+            label = { Text("${stringResource(R.string.volume_unit_label)} (${volumeUnit.symbol})") },
             placeholder = { Text("50") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
@@ -303,74 +305,68 @@ fun VehicleSettingsDialog(
           )
         }
 
-        // Distance & Volume Units (2-column dropdowns)
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.spacedBy(10.dp)
+        // Distance Unit (Full Width Dropdown)
+        ExposedDropdownMenuBox(
+          expanded = distExpanded,
+          onExpandedChange = { distExpanded = it },
+          modifier = Modifier.fillMaxWidth()
         ) {
-          // Distance Unit
-          ExposedDropdownMenuBox(
+          OutlinedTextField(
+            value = stringResource(distanceUnit.nameRes),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.distance_unit_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = distExpanded) },
+            modifier = Modifier
+              .menuAnchor()
+              .fillMaxWidth()
+          )
+          ExposedDropdownMenu(
             expanded = distExpanded,
-            onExpandedChange = { distExpanded = it },
-            modifier = Modifier.weight(1f)
+            onDismissRequest = { distExpanded = false }
           ) {
-            OutlinedTextField(
-              value = "${distanceUnit.label} (${distanceUnit.symbol})",
-              onValueChange = {},
-              readOnly = true,
-              label = { Text("Distance") },
-              trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = distExpanded) },
-              modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
-            )
-            ExposedDropdownMenu(
-              expanded = distExpanded,
-              onDismissRequest = { distExpanded = false }
-            ) {
-              DistanceUnit.values().forEach { d ->
-                DropdownMenuItem(
-                  text = { Text("${d.label} (${d.symbol})") },
-                  onClick = {
-                    distanceUnit = d
-                    economyUnit = EconomyUnit.getDefault(selectedFuelType, d, volumeUnit)
-                    distExpanded = false
-                  }
-                )
-              }
+            DistanceUnit.values().forEach { d ->
+              DropdownMenuItem(
+                text = { Text(stringResource(d.nameRes)) },
+                onClick = {
+                  distanceUnit = d
+                  economyUnit = EconomyUnit.getDefault(selectedFuelType, d, volumeUnit)
+                  distExpanded = false
+                }
+              )
             }
           }
+        }
 
-          // Volume Unit
-          ExposedDropdownMenuBox(
+        // Volume Unit (Full Width Dropdown)
+        ExposedDropdownMenuBox(
+          expanded = volExpanded,
+          onExpandedChange = { volExpanded = it },
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          OutlinedTextField(
+            value = stringResource(volumeUnit.nameRes),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.volume_unit_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = volExpanded) },
+            modifier = Modifier
+              .menuAnchor()
+              .fillMaxWidth()
+          )
+          ExposedDropdownMenu(
             expanded = volExpanded,
-            onExpandedChange = { volExpanded = it },
-            modifier = Modifier.weight(1f)
+            onDismissRequest = { volExpanded = false }
           ) {
-            OutlinedTextField(
-              value = "${volumeUnit.label} (${volumeUnit.symbol})",
-              onValueChange = {},
-              readOnly = true,
-              label = { Text("Volume") },
-              trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = volExpanded) },
-              modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
-            )
-            ExposedDropdownMenu(
-              expanded = volExpanded,
-              onDismissRequest = { volExpanded = false }
-            ) {
-              VolumeUnit.values().forEach { v ->
-                DropdownMenuItem(
-                  text = { Text("${v.label} (${v.symbol})") },
-                  onClick = {
-                    volumeUnit = v
-                    economyUnit = EconomyUnit.getDefault(selectedFuelType, distanceUnit, v)
-                    volExpanded = false
-                  }
-                )
-              }
+            VolumeUnit.values().forEach { v ->
+              DropdownMenuItem(
+                text = { Text(stringResource(v.nameRes)) },
+                onClick = {
+                  volumeUnit = v
+                  economyUnit = EconomyUnit.getDefault(selectedFuelType, distanceUnit, v)
+                  volExpanded = false
+                }
+              )
             }
           }
         }
@@ -382,10 +378,10 @@ fun VehicleSettingsDialog(
           modifier = Modifier.fillMaxWidth()
         ) {
           OutlinedTextField(
-            value = economyUnit.label,
+            value = stringResource(economyUnit.nameRes),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Fuel / Energy Economy Unit") },
+            label = { Text(stringResource(R.string.economy_unit_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = economyExpanded) },
             modifier = Modifier
               .menuAnchor()
@@ -399,7 +395,7 @@ fun VehicleSettingsDialog(
               DropdownMenuItem(
                 text = {
                   Column {
-                    Text(unit.label, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(unit.nameRes), fontWeight = FontWeight.SemiBold)
                     Text(unit.symbol, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                   }
                 },
@@ -437,12 +433,12 @@ fun VehicleSettingsDialog(
         },
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
       ) {
-        Text("Save Settings", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.action_save), fontWeight = FontWeight.Bold)
       }
     },
     dismissButton = {
       OutlinedButton(onClick = onDismiss) {
-        Text("Cancel")
+        Text(stringResource(R.string.action_cancel))
       }
     }
   )

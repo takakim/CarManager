@@ -37,6 +37,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.PeriodSummary
 import today.takaki.data.model.VehicleProfile
 import java.util.Locale
@@ -94,12 +96,12 @@ fun AvgPriceCard(
           Spacer(modifier = Modifier.width(10.dp))
           Column {
             Text(
-              text = "Average Price Analysis",
+              text = stringResource(R.string.avg_price_analysis),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Weighted based on fuel volume purchased",
+              text = stringResource(R.string.avg_price_analysis_sub),
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -124,7 +126,7 @@ fun AvgPriceCard(
         ) {
           Column {
             Text(
-              text = "${summary.timeFilter.title} Average",
+              text = stringResource(R.string.period_avg_label, stringResource(summary.timeFilter.nameRes)),
               style = MaterialTheme.typography.labelMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -138,7 +140,7 @@ fun AvgPriceCard(
               color = MaterialTheme.colorScheme.primary
             )
             Text(
-              text = "per $volUnit",
+              text = stringResource(R.string.per_unit_fmt, volUnit),
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -147,7 +149,7 @@ fun AvgPriceCard(
           // All-time benchmark comparison
           Column(horizontalAlignment = Alignment.End) {
             Text(
-              text = "All-Time Avg",
+              text = stringResource(R.string.all_time_avg),
               style = MaterialTheme.typography.labelMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -175,7 +177,7 @@ fun AvgPriceCard(
                   modifier = Modifier.size(12.dp)
                 )
                 Text(
-                  text = String.format(Locale.getDefault(), "%.1f%% vs all-time", Math.abs(diffPercent)),
+                  text = stringResource(R.string.vs_all_time_fmt, String.format(Locale.getDefault(), "%.1f%%", Math.abs(diffPercent))),
                   fontSize = 11.sp,
                   color = diffColor,
                   fontWeight = FontWeight.Medium
@@ -194,7 +196,7 @@ fun AvgPriceCard(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
       ) {
         PriceDetailCard(
-          title = "Lowest Paid",
+          title = stringResource(R.string.lowest_paid),
           price = minPrice,
           currency = currency,
           volUnit = volUnit,
@@ -204,7 +206,7 @@ fun AvgPriceCard(
         )
 
         PriceDetailCard(
-          title = "Highest Paid",
+          title = stringResource(R.string.highest_paid),
           price = maxPrice,
           currency = currency,
           volUnit = volUnit,
@@ -235,14 +237,16 @@ fun AvgPriceCard(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = String.format(
-                Locale.getDefault(),
-                "Saved ~%s%.2f in this period vs peak price (%s%.3f/%s)",
-                currency, potentialSavings, currency, maxPrice, volUnit
+              text = stringResource(
+                R.string.saved_vs_peak_fmt,
+                currency,
+                potentialSavings,
+                maxPrice,
+                volUnit
               ),
-              fontSize = 12.sp,
-              color = Color(0xFF047857),
-              fontWeight = FontWeight.Medium
+              style = MaterialTheme.typography.labelSmall,
+              color = Color(0xFF10B981),
+              fontWeight = FontWeight.SemiBold
             )
           }
         }
@@ -291,7 +295,7 @@ private fun PriceDetailCard(
         fontWeight = FontWeight.Bold
       )
       Text(
-        text = "per $volUnit",
+        text = stringResource(R.string.per_unit_fmt, volUnit),
         fontSize = 10.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant
       )

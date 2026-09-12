@@ -18,16 +18,18 @@ android {
     applicationId = "today.takaki.fueltracker.vxqmkz"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1
+    versionCode = 5
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
   signingConfigs {
+    val envKeystore = System.getenv("KEYSTORE_PATH")?.takeIf { it.isNotBlank() }
+    val releaseKeystore = envKeystore?.let { file(it) } ?: file("${rootDir}/my-upload-key.jks")
+
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
-      storeFile = file(keystorePath)
+      storeFile = releaseKeystore
       storePassword = System.getenv("STORE_PASSWORD")
       keyAlias = "upload"
       keyPassword = System.getenv("KEY_PASSWORD")
@@ -45,7 +47,12 @@ android {
       isCrunchPngs = false
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      signingConfig = if (file(System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks").exists()) {
+      ndk {
+        debugSymbolLevel = "FULL"
+      }
+      val envKeystore = System.getenv("KEYSTORE_PATH")?.takeIf { it.isNotBlank() }
+      val releaseKeystore = envKeystore?.let { file(it) } ?: file("${rootDir}/my-upload-key.jks")
+      signingConfig = if (releaseKeystore.exists() && !System.getenv("STORE_PASSWORD").isNullOrBlank()) {
         signingConfigs.getByName("release")
       } else {
         signingConfigs.getByName("debugConfig")
@@ -63,6 +70,9 @@ android {
   buildFeatures {
     compose = true
     buildConfig = true
+  }
+  androidResources {
+    generateLocaleConfig = true
   }
   testOptions { unitTests { isIncludeAndroidResources = true } }
   dependenciesInfo {

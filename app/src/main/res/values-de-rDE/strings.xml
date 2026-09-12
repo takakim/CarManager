@@ -1,0 +1,306 @@
+<resources>
+    <string name="app_name">Fuel &amp; Energy Tracker</string>
+    <string name="app_title">Kraftstoff- &amp; Energie-Tracker</string>
+    <string name="archived_tag">(Archiviert)</string>
+
+    <!-- Navigation Tabs -->
+    <string name="tab_overview">Übersicht</string>
+    <string name="tab_logs">Einträge</string>
+    <string name="tab_analytics">Statistiken</string>
+    <string name="tab_vehicle">Fahrzeug</string>
+
+    <!-- Time Filters -->
+    <string name="filter_this_week">Diese Woche</string>
+    <string name="filter_this_month">Dieser Monat</string>
+    <string name="filter_this_year">Dieses Jahr</string>
+    <string name="filter_all_time">Gesamt</string>
+
+    <!-- Dashboard & Metrics -->
+    <string name="spending_overview">Ausgabenübersicht</string>
+    <string name="recent_activity">Letzte Aktivitäten</string>
+    <string name="view_all_logs">Alle Anzeigen</string>
+    <string name="price_history">Preisentwicklung</string>
+    <string name="total_spent">Gesamtausgaben</string>
+    <string name="average_economy">Durchschnittsverbrauch</string>
+    <string name="avg_price_paid">Durchschnittspreis</string>
+    <string name="min_price_paid">Tiefstpreis</string>
+    <string name="max_price_paid">Höchstpreis</string>
+    <string name="daily_average">Tagesdurchschnitt</string>
+    <string name="weekly_average">Wochendurchschnitt</string>
+    <string name="monthly_average">Monatsdurchschnitt</string>
+    <string name="total_volume">Gesamtvolumen</string>
+    <string name="total_distance">Gesamtstrecke</string>
+    <string name="total_cost">Gesamtkosten</string>
+    <string name="consumption">Verbrauch</string>
+    <string name="no_logs_title">Noch Keine Einträge</string>
+    <string name="no_logs_desc">Tippen Sie auf +, um Ihre erste Betankung oder Ladung einzutragen, oder Beispieldaten zu laden.</string>
+    <string name="load_sample_data">Beispieldaten Laden</string>
+    <string name="sample_data_loaded">Beispieldaten erfolgreich geladen</string>
+    <string name="lifetime_stats">Lebenszeit-Statistik</string>
+    <string name="cost_per_distance">Kosten / Distanz</string>
+
+    <!-- Log Entry Fields & Dialogs -->
+    <string name="add_log_title">Betankung / Ladung Hinzufügen</string>
+    <string name="edit_log_title">Eintrag Bearbeiten</string>
+    <string name="odometer">Kilometerstand</string>
+    <string name="odometer_reading">Aktueller Kilometerstand</string>
+    <string name="fuel_amount">Menge an Kraftstoff / Energie</string>
+    <string name="price_per_unit">Preis pro Einheit</string>
+    <string name="fuel_station">Tankstelle / Ladestation</string>
+    <string name="fuel_station_hint">Name der Tankstelle (z. B. Aral, Shell, Ionity)</string>
+    <string name="fuel_grade">Kraftstoffsorte / Ladetyp</string>
+    <string name="fuel_grade_hint">Sorte (z. B. Super E10, Diesel, Schnelllader)</string>
+    <string name="full_tank">Vollgetankt / Voll Geladen</string>
+    <string name="full_tank_desc">Erforderlich zur exakten Verbrauchsberechnung</string>
+    <string name="notes">Notizen</string>
+    <string name="notes_hint">Optionale Notizen oder Fahrtdetails</string>
+    <string name="date_and_time">Datum &amp; Uhrzeit</string>
+    <string name="calculated_total">Berechnete Summe</string>
+    <string name="delete_log_title">Eintrag Löschen</string>
+    <string name="delete_log_confirm">Möchten Sie diesen Eintrag wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
+    <string name="log_saved_success">Eintrag erfolgreich gespeichert</string>
+    <string name="log_deleted_success">Eintrag gelöscht</string>
+    <string name="search_logs_hint">Nach Tankstelle, Sorte oder Notiz suchen...</string>
+    <string name="filter_all_stations">Alle Tankstellen</string>
+    <string name="no_matching_logs">Keine passenden Einträge gefunden</string>
+    <string name="full_tank_badge">Voll</string>
+    <string name="partial_tank_badge">Teilbetankung</string>
+
+    <!-- Smart Advisor & AI Insights -->
+    <string name="smart_advisor_title">Smarter Berater</string>
+    <string name="ai_insights_title">KI-Berater Einblicke</string>
+    <string name="ai_insights_subtitle">Effizienzbewertung und Prognosen direkt auf dem Gerät</string>
+    <string name="efficiency_score">Effizienz-Score</string>
+    <string name="score_excellent">Ausgezeichnet</string>
+    <string name="score_good">Gut</string>
+    <string name="score_fair">Mäßig</string>
+    <string name="score_attention">Optimierungsbedarf</string>
+    <string name="recommendations_title">Wichtige Empfehlungen</string>
+    <string name="forecast_title">Prognose für den Nächsten Zeitraum</string>
+    <string name="analyze_period_btn">Zeitraum Analysieren</string>
+    <string name="analyzing_advisor">Fahr- und Verbrauchsdaten werden analysiert...</string>
+    <string name="smart_advisor_enabled">Smarter Berater Aktiviert</string>
+    <string name="smart_advisor_disabled">Smarter Berater Deaktiviert</string>
+    <string name="economic_rating">Wirtschaftlichkeitsbewertung</string>
+
+    <!-- Analytics Screen -->
+    <string name="analytics_overview">Analysen &amp; Trends</string>
+    <string name="spending_chart_title">Ausgaben nach Zeitraum</string>
+    <string name="price_history_title">Preistrends &amp; Verlauf</string>
+    <string name="price_min_max_avg">Min / Max / Ø</string>
+    <string name="spending_comparison">Zeitraumvergleich</string>
+    <string name="vs_prev_period">im Vergleich zum Vorzeitraum</string>
+
+    <!-- Vehicle Profile & Settings -->
+    <string name="vehicle_settings_title">Fahrzeugeinstellungen</string>
+    <string name="vehicle_profile_title">Fahrzeugprofil</string>
+    <string name="vehicle_name">Fahrzeugname</string>
+    <string name="make_and_model">Marke &amp; Modell</string>
+    <string name="vehicle_year">Baujahr</string>
+    <string name="fuel_type_label">Kraftstoffart</string>
+    <string name="currency_label">Währungssymbol</string>
+    <string name="distance_unit_label">Distanzeinheit</string>
+    <string name="volume_unit_label">Volumen- / Kapazitätseinheit</string>
+    <string name="economy_unit_label">Verbrauchseinheit</string>
+    <string name="initial_odometer_label">Anfangs-Kilometerstand</string>
+    <string name="settings_units">Währung und Anzeigeeinheiten</string>
+    <string name="vehicle_list_title">Ihre Fahrzeuge</string>
+    <string name="add_vehicle_btn">Fahrzeug Hinzufügen</string>
+    <string name="switch_vehicle_btn">Auswählen</string>
+    <string name="archive_vehicle_btn">Archivieren</string>
+    <string name="exchange_vehicle_btn">Fahrzeug wechseln</string>
+    <string name="restore_vehicle_btn">Wiederherstellen</string>
+    <string name="archive_exchange_title">Fahrzeug Archivieren</string>
+    <string name="archive_vehicle_confirm">%1$s archivieren? Inaktive Fahrzeuge bleiben im Verlauf gespeichert, werden jedoch im Alltag ausgeblendet.</string>
+    <string name="vehicle_archived">Fahrzeug archiviert</string>
+    <string name="vehicle_restored">Fahrzeug wiederhergestellt</string>
+    <string name="active_badge">Aktiv</string>
+    <string name="archived_badge">Archiviert</string>
+
+    <!-- CSV Import & Export -->
+    <string name="import_export_title">Sicherung &amp; Wiederherstellung (CSV)</string>
+    <string name="export_csv_btn">Einträge als CSV Exportieren</string>
+    <string name="import_csv_btn">Einträge aus CSV Importieren</string>
+    <string name="export_instructions">Exportieren Sie alle Tank- und Ladedaten dieses Fahrzeugs in eine Standard-CSV-Tabelle.</string>
+    <string name="import_instructions">Importieren Sie vorhandene Datensätze aus einer kompatiblen CSV-Datei. Duplikate werden übersprungen.</string>
+    <string name="export_success">CSV-Datei erfolgreich exportiert</string>
+    <string name="import_success">%1$d Einträge erfolgreich importiert</string>
+    <string name="import_error">CSV-Datei konnte nicht verarbeitet werden. Bitte Format prüfen.</string>
+    <string name="share_csv">CSV Teilen</string>
+
+    <!-- Fuel Types -->
+    <string name="fuel_gasoline">Benzin</string>
+    <string name="fuel_diesel">Diesel</string>
+    <string name="fuel_electric">Elektro (EV)</string>
+    <string name="fuel_hybrid">Hybrid (Benzin)</string>
+    <string name="fuel_lpg">Autogas (LPG)</string>
+    <string name="fuel_cng">Erdgas (CNG)</string>
+
+    <!-- Distance Units -->
+    <string name="unit_kilometers">Kilometer (km)</string>
+    <string name="unit_miles">Meilen (mi)</string>
+
+    <!-- Volume Units -->
+    <string name="unit_liters">Liter (L)</string>
+    <string name="unit_gallons_us">Gallonen (US)</string>
+    <string name="unit_gallons_uk">Gallonen (UK)</string>
+    <string name="unit_kwh">Kilowattstunden (kWh)</string>
+    <string name="unit_kg">Kilogramm (kg)</string>
+
+    <!-- Economy Units -->
+    <string name="econ_l_per_100km">Liter pro 100 km (L/100km)</string>
+    <string name="econ_mpg_us">Meilen pro Gallone US (MPG US)</string>
+    <string name="econ_mpg_uk">Meilen pro Gallone UK (MPG UK)</string>
+    <string name="econ_km_per_l">Kilometer pro Liter (km/L)</string>
+    <string name="econ_kwh_per_100km">kWh pro 100 km (kWh/100km)</string>
+    <string name="econ_mi_per_kwh">Meilen pro kWh (mi/kWh)</string>
+    <string name="econ_km_per_kwh">Kilometer pro kWh (km/kWh)</string>
+    <string name="econ_kwh_per_100mi">kWh pro 100 Meilen (kWh/100mi)</string>
+    <string name="econ_kg_per_100km">kg pro 100 km (kg/100km)</string>
+    <string name="econ_km_per_kg">Kilometer pro kg (km/kg)</string>
+
+    <!-- Common Button Actions -->
+    <string name="action_save">Speichern</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_close">Schließen</string>
+    <string name="action_confirm">Bestätigen</string>
+    <string name="action_done">Fertig</string>
+    <string name="action_select">Auswählen</string>
+
+    <!-- Added I18n & Smart Advisor strings -->
+    <string name="delete_vehicle_title">Fahrzeug aus Verlauf löschen?</string>
+    <string name="delete_vehicle_confirm">Möchten Sie %1$s und alle zugehörigen Tankeinträge dauerhaft aus Ihrer Garage löschen?</string>
+    <string name="ownership_history_title">Besitzverlauf &amp; Startdaten</string>
+    <string name="purchase_date_label">Kaufdatum (Seit Erwerb)</string>
+    <string name="select_purchase_date_cd">Kaufdatum auswählen</string>
+    <string name="initial_odometer_placeholder">z.B. 0 oder 15000</string>
+    <string name="total_running_costs">Laufende Gesamtkosten</string>
+    <string name="total_avg_consumption">Gesamtdurchschnittsverbrauch</string>
+    <string name="no_driving_logged">Keine Fahrten erfasst</string>
+    <string name="total_consumed_fmt">%1$s %2$s insgesamt verbraucht</string>
+    <string name="distance_driven">Gefahrene Strecke</string>
+    <string name="ownership_period">Besitzzeitraum</string>
+    <string name="days_count_fmt">%1$d Tage</string>
+    <string name="set_as_active">Als aktiv setzen</string>
+    <string name="exchange_archive_btn">Fahrzeugwechsel</string>
+    <string name="export_btn">Exportieren</string>
+    <string name="archive_reason_fmt">Grund: %1$s</string>
+    <string name="total_spending">Gesamtausgaben</string>
+    <string name="refuels_count_fmt">%1$d Tankungen</string>
+    <string name="refuel_count_fmt">%1$d Tankung</string>
+    <string name="total_fuel_energy">Kraftstoff / Energie Gesamt</string>
+    <string name="distance_label">Distanz</string>
+    <string name="per_unit_fmt">pro %1$s</string>
+    <string name="cost_per_unit_fmt">Kosten / %1$s</string>
+    <string name="avg_price_analysis">Durchschnittspreisanalyse</string>
+    <string name="avg_price_analysis_sub">Gewichtet nach getanktem Kraftstoffvolumen</string>
+    <string name="period_avg_label">%1$s Durchschnitt</string>
+    <string name="all_time_avg">Gesamtdurchschnitt</string>
+    <string name="vs_all_time_fmt">%1$s im Vergleich zum Gesamtzeitraum</string>
+    <string name="lowest_paid">Niedrigster</string>
+    <string name="highest_paid">Höchster</string>
+    <string name="saved_vs_peak_fmt">Ca. %1$s%2$.2f in diesem Zeitraum im Vergleich zum Spitzenpreis (%1$s%3$.3f/%4$s) gespart</string>
+    <string name="no_logs_in_period">Keine Einträge im Zeitraum</string>
+    <string name="avg_label_short">Ø</string>
+    <string name="spending_breakdown">Ausgabenverteilung</string>
+    <string name="chart_sub_week">Tägliche Kraftstoffausgaben</string>
+    <string name="chart_sub_month">Wöchentliche Kraftstoffausgaben</string>
+    <string name="chart_sub_year">Monatliche Kraftstoffausgaben</string>
+    <string name="chart_sub_purchase">Monatliche Übersicht seit Fahrzeugkauf</string>
+    <string name="chart_sub_all">Historische Ausgabenübersicht</string>
+    <string name="unit_price_fluctuation">Preisschwankungen</string>
+    <string name="track_price_sub">Entwicklung des Preises pro %1$s im Zeitverlauf</string>
+    <string name="price_paid">Bezahlter Preis</string>
+    <string name="chart_need_more_refuels">Mindestens 2 Tankungen erforderlich, um Kurve darzustellen</string>
+    <string name="smart_advisor_card_title">Intelligenter Zeitraumberater</string>
+    <string name="smart_advisor_card_subtitle">On-Device-Intelligenz • %1$s</string>
+    <string name="smart_advisor_disabled_sub">Deaktiviert • 100% kostenlose On-Device-Intelligenz</string>
+    <string name="cost_driver_attribution">Kostentreiber-Analyse</string>
+    <string name="key_observations">Wichtigste Beobachtungen</string>
+    <string name="tailored_recommendations">Maßgeschneiderte Empfehlungen</string>
+    <string name="budget_forecast">Budgetprognose</string>
+    <string name="advisor_analyzing_title">Analysiere %1$s auf dem Gerät...</string>
+    <string name="advisor_analyzing_sub">Verarbeitung von Kraftstoffpreisen, Distanz und Verbrauch</string>
+    <string name="instant_breakdown_title">Sofortige intelligente Ausgabenanalyse</string>
+    <string name="instant_breakdown_desc">Nutzen Sie die Rechenleistung Ihres Smartphones, um Tankungen für %1$s auszuwerten — 100%% kostenlos und ohne API-Gebühren.</string>
+    <string name="analyze_filter_btn">%1$s analysieren</string>
+    <string name="copied_to_clipboard">Analysebericht in Zwischenablage kopiert</string>
+    <string name="score_optimal">Optimal</string>
+    <string name="score_moderate">Moderat</string>
+    <string name="score_high_consumption">Hoher Verbrauch</string>
+    <string name="ai_finding_higher_price_title">Trend zu höheren Kraftstoffpreisen</string>
+    <string name="ai_finding_higher_price_desc">Sie haben %1$s mehr als Ihren Gesamtdurchschnitt bezahlt (%2$s vs. %3$s/%4$s).</string>
+    <string name="ai_rec_refuel_timing_title">Strategie für Tankzeitpunkte</string>
+    <string name="ai_rec_refuel_timing_desc">Kraftstoffpreise sind an Wochenenden oft am höchsten. Tanken zur Wochenmitte (Dienstag/Mittwoch) spart spürbar.</string>
+    <string name="ai_rec_refuel_timing_savings">~%1$s%2$.2f/Tankung</string>
+    <string name="ai_finding_favorable_price_title">Günstige Kraftstoffpreise</string>
+    <string name="ai_finding_favorable_price_desc">Ihr durchschnittlicher Preis von %1$s/%2$s lag %3$s unter dem Gesamtdurchschnitt.</string>
+    <string name="ai_finding_stable_price_title">Stabiler Kraftstoffpreis</string>
+    <string name="ai_finding_stable_price_desc">Der Durchschnittspreis (%1$s/%2$s) entspricht Ihrem historischen Fahrzeugwert.</string>
+    <string name="ai_finding_running_cost_title">Laufende Kosten: %1$s / %2$s</string>
+    <string name="ai_finding_running_cost_desc">%1$s %2$s in %3$d Tankungen mit einem Durchschnittsverbrauch von %4$s zurückgelegt.</string>
+    <string name="ai_finding_logged_activity_title">Erfasste Tankaktivität</string>
+    <string name="ai_finding_logged_activity_desc">%1$d Tankungen über insgesamt %2$s %3$s und %4$s.</string>
+    <string name="ai_finding_price_variance_title">Tankstellen-Preisunterschied (%1$s/%2$s)</string>
+    <string name="ai_finding_price_variance_desc">Preise schwankten zwischen %1$s und %2$s an verschiedenen Stationen.</string>
+    <string name="ai_rec_ev_night_charge_title">Nachtladung zu Nebenzeiten</string>
+    <string name="ai_rec_ev_night_charge_desc">Laden Sie zwischen Mitternacht und 6 Uhr morgens für günstigere Stromtarife.</string>
+    <string name="ai_rec_ev_night_charge_savings">Bis zu 35-50% pro kWh</string>
+    <string name="ai_rec_ev_preconditioning_title">Vorklimatisierung am Stromnetz</string>
+    <string name="ai_rec_ev_preconditioning_desc">Kabine heizen oder kühlen während das Fahrzeug eingesteckt ist, um Batteriereichweite zu schonen.</string>
+    <string name="ai_rec_ev_preconditioning_savings">3-6% zusätzliche Reichweite</string>
+    <string name="ai_rec_ev_regen_title">Maximierte Bremsrekuperation</string>
+    <string name="ai_rec_ev_regen_desc">Nutzen Sie One-Pedal-Driving im Stadtverkehr, um kinetische Bremsenergie in die Batterie rückzuführen.</string>
+    <string name="ai_rec_ev_regen_savings">8-12% Energierückgewinnung</string>
+    <string name="ai_rec_hybrid_pulse_glide_title">Pulse-and-Glide Fahrweise</string>
+    <string name="ai_rec_hybrid_pulse_glide_desc">Zügig auf Zielgeschwindigkeit beschleunigen, dann leicht vom Gas gehen, um den elektrischen Segelmodus zu aktivieren.</string>
+    <string name="ai_rec_hybrid_pulse_glide_savings">10-15% Kraftstoffreduktion</string>
+    <string name="ai_rec_tire_inflation_title">Optimaler Reifendruck (kalt)</string>
+    <string name="ai_rec_tire_inflation_desc">Herstellerangaben einhalten, um Rollwiderstand zu verringern und Effizienz zu steigern.</string>
+    <string name="ai_rec_tire_inflation_savings">2-3% Effizienzgewinn</string>
+    <string name="ai_rec_smooth_cruising_title">Gleichmäßiges Autobahntempo</string>
+    <string name="ai_rec_smooth_cruising_desc">Abruptes Beschleunigen vermeiden und 100-110 km/h einhalten, um aerodynamischen Widerstand zu senken.</string>
+    <string name="ai_rec_smooth_cruising_savings">~%1$s%2$.2f/Zeitraum</string>
+    <string name="ai_rec_remove_cargo_title">Unnötiges Gepäck &amp; Dachträger entfernen</string>
+    <string name="ai_rec_remove_cargo_desc">Unbenutzte Träger oder schweres Gepäck erzeugen Luftwiderstand und Mehrgewicht, was den Verbrauch steigert.</string>
+    <string name="ai_rec_remove_cargo_savings">4-8% Effizienzgewinn</string>
+    <string name="ai_rec_check_tire_pressure_title">Reifendruck regelmäßig prüfen</string>
+    <string name="ai_rec_check_tire_pressure_desc">0,3 bar (4 PSI) zu niedriger Druck erhöht den Verbrauch um 2% und beschleunigt Verschleiß.</string>
+    <string name="ai_rec_check_tire_pressure_savings">1-3% Kraftstoffersparnis</string>
+    <string name="ai_cost_attr_no_spend">Bisher keine Ausgaben für %1$s erfasst.</string>
+    <string name="ai_cost_attr_price_and_mileage">%1$d%% des Kostenanstiegs wurden durch höhere Kraftstoffpreise (%2$s/%3$s) verursacht, %4$d%% durch das Fahrvolumen.</string>
+    <string name="ai_cost_attr_price_elevated">Etwa 75% der Ausgaben entstanden durch erhöhte Kraftstoffpreise bei normaler Fahrstrecke.</string>
+    <string name="ai_cost_attr_distance_dominant">Die höhere Fahrstrecke (%1$s %2$s) war der Hauptfaktor (~80%%) Ihrer Gesamtkosten in diesem Zeitraum.</string>
+    <string name="ai_cost_attr_favorable_prices">Günstigere Kraftstoffpreise reduzierten die Gesamtausgaben um ca. %1$s gegenüber dem historischen Durchschnitt.</string>
+    <string name="ai_cost_attr_steady">Ausgaben von %1$s blieben stabil und ausgewogen zwischen Preisniveau und regelmäßiger Fahrleistung.</string>
+    <string name="ai_forecast_next_week">Prognostizierte Kraftstoffkosten nächste Woche: ~%1$s - %2$s basierend auf aktuellem Tempo.</string>
+    <string name="ai_forecast_weekly_cost">Geschätzte wöchentliche Betriebskosten: ~%1$s basierend auf historischem Durchschnitt.</string>
+    <string name="ai_forecast_next_month">Prognostizierte Kraftstoffkosten nächsten Monat: ~%1$s - %2$s.</string>
+    <string name="ai_forecast_monthly_cost">Geschätzte monatliche Betriebskosten: ~%1$s.</string>
+    <string name="ai_forecast_annual">Geschätzte jährliche Kraftstoffkosten: ~%1$s bei aktuellem monatlichen Verbrauch.</string>
+    <string name="ai_forecast_ongoing">Prognostizierte laufende Ausgaben: ~%1$s/Monat (%2$s/Tag).</string>
+    <string name="ai_headline_price_spike">Ausgaben stiegen vor allem aufgrund erhöhter Markt-Kraftstoffpreise (%1$s/%2$s)</string>
+    <string name="ai_headline_price_favorable">Hervorragende Kosteneffizienz: Günstige Kraftstoffpreise und gleichmäßiger Verbrauch sparten Geld</string>
+    <string name="ai_headline_optimal">Optimaler Zeitraum: Verbrauch und Kraftstoffpreise blieben stabil im Zielbereich</string>
+    <string name="ai_headline_balanced">Ausgewogener Zeitraum mit konkreten Optimierungsmöglichkeiten für Fahrt und Betankung</string>
+    <string name="date_present">Heute</string>
+    <string name="odo_range_fmt">Km-Stand: %1$s -> %2$s</string>
+    <string name="archive_exchange_new_tab">Gegen Neues Tauschen</string>
+    <string name="archive_only_tab">Nur Archivieren</string>
+    <string name="ownership_end_details">Details zum Besitzende</string>
+    <string name="exchange_archive_date">Tausch- / Archivierungsdatum</string>
+    <string name="final_odometer">End-Kilometerstand</string>
+    <string name="reason_for_archive">Grund für Archivierung / Tausch</string>
+    <string name="reason_traded_in">In Zahlung gegeben / Getauscht</string>
+    <string name="reason_sold_private">Privat Verkauft</string>
+    <string name="reason_lease_ended">Leasing Beendet / Zurückgegeben</string>
+    <string name="reason_fleet_change">Firmenwagen- / Flottenwechsel</string>
+    <string name="reason_scrapped">Verschrottet / Stillgelegt</string>
+    <string name="reason_other">Sonstiges</string>
+    <string name="new_replacement_car_details">Details des Neuen Fahrzeugs</string>
+    <string name="car_nickname">Fahrzeug-Spitzname</string>
+    <string name="battery_capacity_kwh">Batterie (kWh)</string>
+    <string name="archive_starting_odo_note">Start-Km-Stand: %1$s %2$s • Im Verlauf Gespeichert</string>
+</resources>

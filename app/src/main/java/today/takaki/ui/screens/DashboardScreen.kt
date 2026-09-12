@@ -48,6 +48,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.FuelLog
 import today.takaki.data.model.FuelType
 import today.takaki.data.model.PeriodSummary
@@ -96,13 +98,14 @@ fun DashboardScreen(
       ) {
         Column(modifier = Modifier.weight(1f)) {
           Text(
-            text = "Fuel & Energy Tracker",
+            text = stringResource(R.string.app_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.onBackground
           )
+          val archivedText = if (vehicle.isArchived) " " + stringResource(R.string.archived_tag) else ""
           Text(
-            text = "${vehicle.name} • ${vehicle.makeModel}${if (vehicle.isArchived) " (Archived)" else ""}",
+            text = "${vehicle.name} • ${vehicle.makeModel}$archivedText",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -114,7 +117,7 @@ fun DashboardScreen(
         ) {
           Icon(
             imageVector = Icons.Default.Tune,
-            contentDescription = "Vehicle Settings",
+            contentDescription = stringResource(R.string.vehicle_settings_title),
             tint = MaterialTheme.colorScheme.primary
           )
         }
@@ -132,18 +135,19 @@ fun DashboardScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "Car:",
+            text = stringResource(R.string.tab_vehicle) + ":",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
           uiState.allVehicles.forEach { v ->
             val isSelected = v.id == vehicle.id
+            val vArchived = if (v.isArchived) " " + stringResource(R.string.archived_tag) else ""
             FilterChip(
               selected = isSelected,
               onClick = { onSelectVehicle(v.id) },
               label = {
                 Text(
-                  text = "${v.name}${if (v.isArchived) " (Archived)" else ""}",
+                  text = "${v.name}$vArchived",
                   fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                 )
               },
@@ -175,7 +179,7 @@ fun DashboardScreen(
             onClick = { onSelectFilter(filter) },
             label = {
               Text(
-                text = filter.title,
+                text = stringResource(filter.nameRes),
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
               )
             },
@@ -209,13 +213,13 @@ fun DashboardScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-              text = "No Refuel Records Yet",
+              text = stringResource(R.string.no_logs_title),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-              text = "Log your first fill-up or load sample data to see weekly, monthly, yearly, and total ownership spending stats.",
+              text = stringResource(R.string.no_logs_desc),
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -228,12 +232,12 @@ fun DashboardScreen(
               ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Add First Refuel")
+                Text(stringResource(R.string.add_log_title))
               }
               OutlinedButton(onClick = onLoadSampleClick) {
                 Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Load Sample Data")
+                Text(stringResource(R.string.load_sample_data))
               }
             }
           }
@@ -305,12 +309,12 @@ fun DashboardScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = "Recent Fill-ups",
+            text = stringResource(R.string.recent_activity),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
           )
           TextButton(onClick = onViewAllLogsClick) {
-            Text("View All (${uiState.logs.size})")
+            Text("${stringResource(R.string.view_all_logs)} (${uiState.logs.size})")
           }
         }
       }
@@ -345,7 +349,7 @@ private fun MultiPeriodSpendingOverview(
 
   Column {
     Text(
-      text = "Spending by Period",
+      text = stringResource(R.string.spending_chart_title),
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.Bold
     )
@@ -356,7 +360,7 @@ private fun MultiPeriodSpendingOverview(
       horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
       PeriodStatMiniCard(
-        title = "This Week",
+        title = stringResource(R.string.filter_this_week),
         spent = uiState.weekSummary.totalSpent,
         avgPrice = uiState.weekSummary.avgPricePaid,
         currency = currency,
@@ -367,7 +371,7 @@ private fun MultiPeriodSpendingOverview(
       )
 
       PeriodStatMiniCard(
-        title = "This Month",
+        title = stringResource(R.string.filter_this_month),
         spent = uiState.monthSummary.totalSpent,
         avgPrice = uiState.monthSummary.avgPricePaid,
         currency = currency,
@@ -385,7 +389,7 @@ private fun MultiPeriodSpendingOverview(
       horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
       PeriodStatMiniCard(
-        title = "This Year",
+        title = stringResource(R.string.filter_this_year),
         spent = uiState.yearSummary.totalSpent,
         avgPrice = uiState.yearSummary.avgPricePaid,
         currency = currency,
@@ -396,7 +400,7 @@ private fun MultiPeriodSpendingOverview(
       )
 
       PeriodStatMiniCard(
-        title = "Since Purchase",
+        title = stringResource(R.string.filter_all_time),
         spent = uiState.sincePurchaseSummary.totalSpent,
         avgPrice = uiState.sincePurchaseSummary.avgPricePaid,
         currency = currency,

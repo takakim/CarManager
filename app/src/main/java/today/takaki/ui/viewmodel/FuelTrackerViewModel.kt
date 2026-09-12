@@ -56,7 +56,7 @@ data class UiState(
 
 class FuelTrackerViewModel(application: Application) : AndroidViewModel(application) {
   private val repository: FuelTrackerRepository
-  private val onDeviceAdvisorService = OnDeviceSmartAdvisorService()
+  private val onDeviceAdvisorService = OnDeviceSmartAdvisorService(application)
   private val prefs = application.getSharedPreferences("fuel_tracker_prefs", Context.MODE_PRIVATE)
 
   private val _selectedFilter = MutableStateFlow(TimeFilter.THIS_MONTH)

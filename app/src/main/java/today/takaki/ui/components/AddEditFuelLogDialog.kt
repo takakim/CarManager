@@ -30,6 +30,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -182,11 +184,7 @@ fun AddEditFuelLogDialog(
           modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-          text = if (initialLog == null) {
-            if (isElectric) "Add Charging Session" else "Add Refuel Log"
-          } else {
-            if (isElectric) "Edit Charging Session" else "Edit Refuel Log"
-          },
+          text = stringResource(if (initialLog == null) R.string.add_log_title else R.string.edit_log_title),
           style = MaterialTheme.typography.titleLarge,
           fontWeight = FontWeight.Bold
         )
@@ -215,7 +213,7 @@ fun AddEditFuelLogDialog(
           ) {
             Column {
               Text(
-                text = "Refuel Date",
+                text = stringResource(R.string.date_and_time),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
               )
@@ -228,7 +226,7 @@ fun AddEditFuelLogDialog(
             IconButton(onClick = { datePickerDialog.show() }) {
               Icon(
                 imageVector = Icons.Default.CalendarToday,
-                contentDescription = "Select Date",
+                contentDescription = stringResource(R.string.date_and_time),
                 tint = MaterialTheme.colorScheme.primary
               )
             }
@@ -239,7 +237,7 @@ fun AddEditFuelLogDialog(
         OutlinedTextField(
           value = odometerInput,
           onValueChange = { odometerInput = it },
-          label = { Text("Odometer ($distUnit)") },
+          label = { Text("${stringResource(R.string.odometer)} ($distUnit)") },
           placeholder = { Text("e.g. 24500") },
           leadingIcon = {
             Icon(Icons.Default.Speed, contentDescription = null)
@@ -259,7 +257,7 @@ fun AddEditFuelLogDialog(
           OutlinedTextField(
             value = amountInput,
             onValueChange = { updateFromAmount(it) },
-            label = { Text("Amount ($volUnit)") },
+            label = { Text("${stringResource(R.string.fuel_amount)} ($volUnit)") },
             placeholder = { Text("42.5") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
@@ -271,7 +269,7 @@ fun AddEditFuelLogDialog(
           OutlinedTextField(
             value = unitPriceInput,
             onValueChange = { updateFromUnitPrice(it) },
-            label = { Text("Price / $volUnit ($currency)") },
+            label = { Text("${stringResource(R.string.price_per_unit)} ($currency)") },
             placeholder = { Text("1.499") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
@@ -285,7 +283,7 @@ fun AddEditFuelLogDialog(
         OutlinedTextField(
           value = totalCostInput,
           onValueChange = { updateFromTotalCost(it) },
-          label = { Text("Total Cost ($currency)") },
+          label = { Text("${stringResource(R.string.total_cost)} ($currency)") },
           placeholder = { Text("60.00") },
           leadingIcon = {
             Text(
@@ -317,12 +315,12 @@ fun AddEditFuelLogDialog(
           ) {
             Column(modifier = Modifier.weight(1f)) {
               Text(
-                text = if (isElectric) "Charged to Full (100%)" else "Filled to Full Tank",
+                text = stringResource(R.string.full_tank),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold
               )
               Text(
-                text = "Used for precise fuel economy (L/100km or MPG)",
+                text = stringResource(R.string.full_tank_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
               )
@@ -343,8 +341,8 @@ fun AddEditFuelLogDialog(
           OutlinedTextField(
             value = stationName,
             onValueChange = { stationName = it },
-            label = { Text("Station / Location") },
-            placeholder = { Text("Shell, BP, Tesla...") },
+            label = { Text(stringResource(R.string.fuel_station)) },
+            placeholder = { Text(stringResource(R.string.fuel_station_hint)) },
             singleLine = true,
             modifier = Modifier
               .weight(1.2f)
@@ -354,8 +352,8 @@ fun AddEditFuelLogDialog(
           OutlinedTextField(
             value = fuelGrade,
             onValueChange = { fuelGrade = it },
-            label = { Text("Grade / Speed") },
-            placeholder = { Text("87 Reg, 91 Prem...") },
+            label = { Text(stringResource(R.string.fuel_grade)) },
+            placeholder = { Text(stringResource(R.string.fuel_grade_hint)) },
             singleLine = true,
             modifier = Modifier
               .weight(0.8f)
@@ -367,8 +365,8 @@ fun AddEditFuelLogDialog(
         OutlinedTextField(
           value = notes,
           onValueChange = { notes = it },
-          label = { Text("Notes (optional)") },
-          placeholder = { Text("e.g. Highway trip, discount voucher applied") },
+          label = { Text(stringResource(R.string.notes)) },
+          placeholder = { Text(stringResource(R.string.notes_hint)) },
           singleLine = true,
           modifier = Modifier.fillMaxWidth()
         )
@@ -423,7 +421,7 @@ fun AddEditFuelLogDialog(
         modifier = Modifier.testTag("save_log_button"),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
       ) {
-        Text("Save Refuel", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.action_save), fontWeight = FontWeight.Bold)
       }
     },
     dismissButton = {
@@ -431,7 +429,7 @@ fun AddEditFuelLogDialog(
         onClick = onDismiss,
         modifier = Modifier.testTag("cancel_log_button")
       ) {
-        Text("Cancel")
+        Text(stringResource(R.string.action_cancel))
       }
     }
   )

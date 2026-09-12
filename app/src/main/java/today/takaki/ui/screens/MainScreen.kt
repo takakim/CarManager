@@ -58,11 +58,15 @@ import today.takaki.ui.components.ImportExportDialog
 import today.takaki.ui.components.VehicleSettingsDialog
 import today.takaki.ui.viewmodel.FuelTrackerViewModel
 
-enum class MainTab(val title: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
-  DASHBOARD("Overview", Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
-  LOGS("Logs", Icons.Filled.FormatListBulleted, Icons.Outlined.FormatListBulleted),
-  ANALYTICS("Analytics", Icons.Filled.Analytics, Icons.Outlined.Analytics),
-  VEHICLE("Vehicle", Icons.Filled.DirectionsCar, Icons.Outlined.DirectionsCar)
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
+
+enum class MainTab(@StringRes val titleRes: Int, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
+  DASHBOARD(R.string.tab_overview, Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
+  LOGS(R.string.tab_logs, Icons.Filled.FormatListBulleted, Icons.Outlined.FormatListBulleted),
+  ANALYTICS(R.string.tab_analytics, Icons.Filled.Analytics, Icons.Outlined.Analytics),
+  VEHICLE(R.string.tab_vehicle, Icons.Filled.DirectionsCar, Icons.Outlined.DirectionsCar)
 }
 
 @Composable
@@ -100,19 +104,20 @@ fun MainScreen(
       ) {
         MainTab.values().forEach { tab ->
           val isSelected = currentTab == tab
+          val tabTitle = stringResource(tab.titleRes)
           NavigationBarItem(
             selected = isSelected,
             onClick = { currentTab = tab },
             icon = {
               Icon(
                 imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
-                contentDescription = tab.title,
+                contentDescription = tabTitle,
                 modifier = Modifier.size(24.dp)
               )
             },
             label = {
               Text(
-                text = tab.title,
+                text = tabTitle,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
               )
             },
@@ -136,7 +141,7 @@ fun MainScreen(
       ) {
         Icon(
           imageVector = Icons.Default.Add,
-          contentDescription = "Log Refuel",
+          contentDescription = stringResource(R.string.add_log_title),
           modifier = Modifier.size(26.dp)
         )
       }
@@ -243,8 +248,8 @@ fun MainScreen(
   if (deletingLog != null) {
     AlertDialog(
       onDismissRequest = { deletingLog = null },
-      title = { Text("Delete Refuel Record?") },
-      text = { Text("Are you sure you want to delete this ${String.format("%.1f %s", deletingLog!!.amount, uiState.vehicle.volumeUnit.symbol)} refuel entry from history?") },
+      title = { Text(stringResource(R.string.delete_log_title)) },
+      text = { Text(stringResource(R.string.delete_log_confirm)) },
       confirmButton = {
         Button(
           onClick = {
@@ -253,12 +258,12 @@ fun MainScreen(
           },
           colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
         ) {
-          Text("Delete")
+          Text(stringResource(R.string.action_delete))
         }
       },
       dismissButton = {
         OutlinedButton(onClick = { deletingLog = null }) {
-          Text("Cancel")
+          Text(stringResource(R.string.action_cancel))
         }
       }
     )

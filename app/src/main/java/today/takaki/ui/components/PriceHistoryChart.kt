@@ -37,6 +37,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.PricePointData
 import java.util.Locale
 
@@ -80,12 +82,12 @@ fun PriceHistoryChart(
           Spacer(modifier = Modifier.width(10.dp))
           Column {
             Text(
-              text = "Unit Price Fluctuation",
+              text = stringResource(R.string.unit_price_fluctuation),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Track how price per $volumeUnit changes over time",
+              text = stringResource(R.string.track_price_sub, volumeUnit),
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -103,7 +105,7 @@ fun PriceHistoryChart(
           contentAlignment = Alignment.Center
         ) {
           Text(
-            text = "Need at least 2 refuels to plot price curve",
+            text = stringResource(R.string.chart_need_more_refuels),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -224,7 +226,7 @@ fun PriceHistoryChart(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-              text = "Price Paid",
+              text = stringResource(R.string.price_paid),
               fontSize = 11.sp,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -239,7 +241,7 @@ fun PriceHistoryChart(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-              text = String.format(Locale.getDefault(), "Avg %s%.3f", currencySymbol, avgPrice),
+              text = String.format(Locale.getDefault(), "%s %s%.3f", stringResource(R.string.avg_label_short), currencySymbol, avgPrice),
               fontSize = 11.sp,
               color = avgLineColor,
               fontWeight = FontWeight.Bold

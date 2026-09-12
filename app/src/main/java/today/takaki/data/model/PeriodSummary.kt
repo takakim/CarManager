@@ -1,11 +1,14 @@
 package today.takaki.data.model
 
-enum class TimeFilter(val title: String, val shortLabel: String) {
-  THIS_WEEK("This Week", "Week"),
-  THIS_MONTH("This Month", "Month"),
-  THIS_YEAR("This Year", "Year"),
-  SINCE_PURCHASE("Since Purchase", "Since Bought"),
-  ALL_TIME("All Time", "All Time")
+import androidx.annotation.StringRes
+import today.takaki.R
+
+enum class TimeFilter(val title: String, val shortLabel: String, @StringRes val nameRes: Int) {
+  THIS_WEEK("This Week", "Week", R.string.filter_this_week),
+  THIS_MONTH("This Month", "Month", R.string.filter_this_month),
+  THIS_YEAR("This Year", "Year", R.string.filter_this_year),
+  SINCE_PURCHASE("Since Purchase", "Since Bought", R.string.filter_all_time),
+  ALL_TIME("All Time", "All Time", R.string.filter_all_time)
 }
 
 data class ChartBarData(

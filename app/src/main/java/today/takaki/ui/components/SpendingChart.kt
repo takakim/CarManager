@@ -42,6 +42,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.ChartBarData
 import today.takaki.data.model.TimeFilter
 import java.util.Locale
@@ -91,17 +93,17 @@ fun SpendingChart(
           Spacer(modifier = Modifier.width(10.dp))
           Column {
             Text(
-              text = "Spending Breakdown",
+              text = stringResource(R.string.spending_breakdown),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
             Text(
               text = when (timeFilter) {
-                TimeFilter.THIS_WEEK -> "Daily fuel expense distribution"
-                TimeFilter.THIS_MONTH -> "Weekly fuel expense distribution"
-                TimeFilter.THIS_YEAR -> "Monthly fuel expense distribution"
-                TimeFilter.SINCE_PURCHASE -> "Monthly breakdown since car purchase"
-                TimeFilter.ALL_TIME -> "Historical expense breakdown"
+                TimeFilter.THIS_WEEK -> stringResource(R.string.chart_sub_week)
+                TimeFilter.THIS_MONTH -> stringResource(R.string.chart_sub_month)
+                TimeFilter.THIS_YEAR -> stringResource(R.string.chart_sub_year)
+                TimeFilter.SINCE_PURCHASE -> stringResource(R.string.chart_sub_purchase)
+                TimeFilter.ALL_TIME -> stringResource(R.string.chart_sub_all)
               },
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant

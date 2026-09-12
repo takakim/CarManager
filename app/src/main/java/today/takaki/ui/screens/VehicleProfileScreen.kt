@@ -56,8 +56,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.FuelType
 import today.takaki.data.model.VehicleProfile
 import today.takaki.ui.components.CarHistoryCard
@@ -126,7 +129,7 @@ fun VehicleProfileScreen(
             onClick = { currentSubTab = VehicleScreenSubTab.ACTIVE_VEHICLE },
             text = {
               Text(
-                text = "Active Car",
+                text = stringResource(R.string.active_badge),
                 fontWeight = if (currentSubTab == VehicleScreenSubTab.ACTIVE_VEHICLE) FontWeight.Bold else FontWeight.Normal
               )
             }
@@ -136,7 +139,7 @@ fun VehicleProfileScreen(
             onClick = { currentSubTab = VehicleScreenSubTab.CAR_HISTORY },
             text = {
               Text(
-                text = "Car History (${uiState.carHistorySummaries.size})",
+                text = "${stringResource(R.string.vehicle_list_title)} (${uiState.carHistorySummaries.size})",
                 fontWeight = if (currentSubTab == VehicleScreenSubTab.CAR_HISTORY) FontWeight.Bold else FontWeight.Normal
               )
             }
@@ -148,46 +151,63 @@ fun VehicleProfileScreen(
     if (currentSubTab == VehicleScreenSubTab.ACTIVE_VEHICLE) {
       // --- ACTIVE VEHICLE VIEW ---
 
-      // Header with Action Buttons
+      // Header with Action Buttons (structured to allow ample space for localized text)
       item {
-        Row(
+        Column(
           modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
+          verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-          Column(modifier = Modifier.weight(1f)) {
+          Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-              text = "Vehicle & Ownership",
+              text = stringResource(R.string.vehicle_profile_title),
               style = MaterialTheme.typography.headlineSmall,
               fontWeight = FontWeight.ExtraBold
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-              text = "Stats and specifications for your active car",
+              text = "${vehicle.name} • ${vehicle.makeModel}",
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
           }
 
-          Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+          ) {
             OutlinedButton(
               onClick = onExchangeVehicleClick,
               shape = RoundedCornerShape(12.dp),
-              modifier = Modifier.testTag("exchange_vehicle_button")
+              modifier = Modifier
+                .weight(1f)
+                .testTag("exchange_vehicle_button")
             ) {
               Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
               Spacer(modifier = Modifier.width(4.dp))
-              Text("Exchange", fontSize = 13.sp)
+              Text(
+                text = stringResource(R.string.archive_exchange_title),
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
             }
 
             Button(
               onClick = onEditVehicleClick,
               colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
               shape = RoundedCornerShape(12.dp),
-              modifier = Modifier.testTag("edit_vehicle_profile_button")
+              modifier = Modifier
+                .weight(1f)
+                .testTag("edit_vehicle_profile_button")
             ) {
               Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
               Spacer(modifier = Modifier.width(4.dp))
-              Text("Edit", fontSize = 13.sp)
+              Text(
+                text = stringResource(R.string.action_edit),
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
             }
           }
         }
@@ -252,7 +272,7 @@ fun VehicleProfileScreen(
                   color = if (isElectric) Color(0xFF00E5FF).copy(alpha = 0.15f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
                 ) {
                   Text(
-                    text = vehicle.fuelType.displayName,
+                    text = stringResource(vehicle.fuelType.nameRes),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isElectric) Color(0xFF0288D1) else MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
@@ -275,12 +295,12 @@ fun VehicleProfileScreen(
         ) {
           Column(modifier = Modifier.padding(18.dp)) {
             Text(
-              text = "Lifetime Ownership Statistics",
+              text = stringResource(R.string.lifetime_stats),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Purchased on ${dateFormat.format(Date(vehicle.purchaseDateMillis))}",
+              text = "${stringResource(R.string.action_select)}: ${dateFormat.format(Date(vehicle.purchaseDateMillis))}",
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -292,21 +312,21 @@ fun VehicleProfileScreen(
               horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
               OwnershipItemBox(
-                title = "Total Fuel / Energy Cost",
+                title = stringResource(R.string.total_cost),
                 value = "$currency${String.format(Locale.getDefault(), "%,.2f", sinceSum.totalSpent)}",
-                subtitle = "${sinceSum.logCount} refuels logged",
+                subtitle = "${sinceSum.logCount} ${stringResource(R.string.tab_logs).lowercase(Locale.getDefault())}",
                 icon = Icons.Default.Paid,
                 modifier = Modifier.weight(1f)
               )
 
               OwnershipItemBox(
-                title = "Lifetime Average Economy",
+                title = stringResource(R.string.average_economy),
                 value = if (sinceSum.averageEconomy > 0) {
                   String.format(Locale.getDefault(), "%.1f %s", sinceSum.averageEconomy, vehicle.economyUnit.symbol)
                 } else {
                   "--"
                 },
-                subtitle = "${String.format(Locale.getDefault(), "%.1f", sinceSum.totalVolume)} $volUnit total consumed",
+                subtitle = "${String.format(Locale.getDefault(), "%.1f", sinceSum.totalVolume)} $volUnit",
                 icon = if (isElectric) Icons.Default.ElectricBolt else Icons.Default.LocalGasStation,
                 modifier = Modifier.weight(1f)
               )
@@ -319,17 +339,17 @@ fun VehicleProfileScreen(
               horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
               OwnershipItemBox(
-                title = "Distance Driven",
+                title = stringResource(R.string.total_distance),
                 value = "${String.format(Locale.getDefault(), "%,.0f", sinceSum.totalDistance)} $distUnit",
-                subtitle = "from initial ${String.format(Locale.getDefault(), "%.0f", vehicle.initialOdometer)} $distUnit",
+                subtitle = "${stringResource(R.string.initial_odometer_label)}: ${String.format(Locale.getDefault(), "%.0f", vehicle.initialOdometer)} $distUnit",
                 icon = Icons.Default.Speed,
                 modifier = Modifier.weight(1f)
               )
 
               OwnershipItemBox(
-                title = "Ownership Period",
+                title = stringResource(R.string.tab_overview),
                 value = String.format(Locale.getDefault(), "%.1f mo", ownershipMonths),
-                subtitle = "$ownershipDays days of driving",
+                subtitle = "$ownershipDays d",
                 icon = Icons.Default.CalendarToday,
                 modifier = Modifier.weight(1f)
               )
@@ -347,23 +367,21 @@ fun VehicleProfileScreen(
         ) {
           Column(modifier = Modifier.padding(18.dp)) {
             Text(
-              text = "Configuration & Display Units",
+              text = stringResource(R.string.vehicle_settings_title),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            ConfigRow(label = "Currency Symbol", value = vehicle.currencySymbol)
+            ConfigRow(label = stringResource(R.string.currency_label), value = vehicle.currencySymbol)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-            ConfigRow(label = "Distance Unit", value = "${vehicle.distanceUnit.label} (${vehicle.distanceUnit.symbol})")
+            ConfigRow(label = stringResource(R.string.distance_unit_label), value = stringResource(vehicle.distanceUnit.nameRes))
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-            ConfigRow(label = "Volume Unit", value = "${vehicle.volumeUnit.label} (${vehicle.volumeUnit.symbol})")
+            ConfigRow(label = stringResource(R.string.volume_unit_label), value = stringResource(vehicle.volumeUnit.nameRes))
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-            ConfigRow(label = "Economy Unit", value = "${vehicle.economyUnit.label} (${vehicle.economyUnit.symbol})")
+            ConfigRow(label = stringResource(R.string.economy_unit_label), value = stringResource(vehicle.economyUnit.nameRes))
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-            ConfigRow(label = "Initial Odometer", value = "${vehicle.initialOdometer} ${vehicle.distanceUnit.symbol}")
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-            ConfigRow(label = "Tank / Battery Capacity", value = "${vehicle.tankCapacity} ${vehicle.volumeUnit.symbol}")
+            ConfigRow(label = stringResource(R.string.initial_odometer_label), value = "${vehicle.initialOdometer} ${vehicle.distanceUnit.symbol}")
           }
         }
       }
@@ -414,12 +432,12 @@ fun VehicleProfileScreen(
               }
               Column {
                 Text(
-                  text = "On-Device Smart Advisor",
+                  text = stringResource(R.string.smart_advisor_title),
                   style = MaterialTheme.typography.titleMedium,
                   fontWeight = FontWeight.Bold
                 )
                 Text(
-                  text = "Period cost breakdown & vehicle efficiency tips calculated locally on your phone. 100% private, runs offline, zero API fees.",
+                  text = stringResource(R.string.ai_insights_subtitle),
                   style = MaterialTheme.typography.bodySmall,
                   color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -446,7 +464,7 @@ fun VehicleProfileScreen(
         ) {
           Column(modifier = Modifier.padding(18.dp)) {
             Text(
-              text = "Data Management & Tools",
+              text = stringResource(R.string.import_export_title),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
@@ -463,7 +481,7 @@ fun VehicleProfileScreen(
             ) {
               Icon(Icons.Default.ImportExport, contentDescription = null, modifier = Modifier.size(18.dp))
               Spacer(modifier = Modifier.width(8.dp))
-              Text("Import / Export Refuel Data (CSV & JSON)", fontWeight = FontWeight.Bold)
+              Text(stringResource(R.string.import_export_title), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -476,21 +494,7 @@ fun VehicleProfileScreen(
             ) {
               Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
               Spacer(modifier = Modifier.width(8.dp))
-              Text("Load Sample Active & Archived Cars")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-              onClick = { showClearConfirm = true },
-              colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFEF4444)),
-              modifier = Modifier
-                .fillMaxWidth()
-                .testTag("clear_all_data_button")
-            ) {
-              Icon(Icons.Default.DeleteSweep, contentDescription = null, modifier = Modifier.size(18.dp))
-              Spacer(modifier = Modifier.width(8.dp))
-              Text("Reset & Clear Active Car Logs")
+              Text(stringResource(R.string.load_sample_data))
             }
           }
         }
@@ -499,19 +503,19 @@ fun VehicleProfileScreen(
     } else {
       // --- CAR HISTORY & GARAGE VIEW ---
       item {
-        Row(
+        Column(
           modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
+          verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-          Column(modifier = Modifier.weight(1f)) {
+          Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-              text = "Car History & Garage",
+              text = stringResource(R.string.vehicle_list_title),
               style = MaterialTheme.typography.headlineSmall,
               fontWeight = FontWeight.ExtraBold
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-              text = "Summary total average consumption and running costs for all vehicles",
+              text = stringResource(R.string.consumption),
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -520,11 +524,17 @@ fun VehicleProfileScreen(
           Button(
             onClick = onExchangeVehicleClick,
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier.fillMaxWidth()
           ) {
             Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Exchange", fontSize = 13.sp)
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+              text = stringResource(R.string.archive_exchange_title),
+              fontSize = 13.sp,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
           }
         }
       }
@@ -599,8 +609,8 @@ fun VehicleProfileScreen(
     val targetCar = uiState.allVehicles.find { it.id == deletingVehicleId }
     AlertDialog(
       onDismissRequest = { deletingVehicleId = null },
-      title = { Text("Delete Vehicle from History?") },
-      text = { Text("Permanently delete ${targetCar?.name ?: "this vehicle"} and all associated refuel records from your garage?") },
+      title = { Text(stringResource(R.string.delete_vehicle_title)) },
+      text = { Text(stringResource(R.string.delete_vehicle_confirm, targetCar?.name ?: "")) },
       confirmButton = {
         Button(
           onClick = {
@@ -609,12 +619,12 @@ fun VehicleProfileScreen(
           },
           colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
         ) {
-          Text("Delete")
+          Text(stringResource(R.string.action_delete))
         }
       },
       dismissButton = {
         OutlinedButton(onClick = { deletingVehicleId = null }) {
-          Text("Cancel")
+          Text(stringResource(R.string.action_cancel))
         }
       }
     )

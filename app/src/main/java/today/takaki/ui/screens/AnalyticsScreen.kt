@@ -50,6 +50,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.ui.components.AiInsightsCard
 import today.takaki.data.model.FuelType
 import today.takaki.data.model.PeriodSummary
@@ -105,12 +107,12 @@ fun AnalyticsScreen(
         Spacer(modifier = Modifier.width(12.dp))
         Column {
           Text(
-            text = "Consumption Analytics",
+            text = stringResource(R.string.tab_analytics),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold
           )
           Text(
-            text = "Price trends, consumption rates & spending cadence",
+            text = stringResource(R.string.analytics_overview),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -134,7 +136,7 @@ fun AnalyticsScreen(
               onClick = { selectedAiPeriod = filter },
               label = {
                 Text(
-                  text = filter.title,
+                  text = stringResource(filter.nameRes),
                   fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                 )
               },
@@ -172,7 +174,7 @@ fun AnalyticsScreen(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Text(
-              text = "Average Price Paid Comparison",
+              text = stringResource(R.string.avg_price_paid),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold
             )
@@ -186,7 +188,7 @@ fun AnalyticsScreen(
           Spacer(modifier = Modifier.height(14.dp))
 
           PriceComparisonRow(
-            title = "This Week Average",
+            title = stringResource(R.string.filter_this_week),
             price = uiState.weekSummary.avgPricePaid,
             currency = currency,
             volUnit = volUnit
@@ -195,7 +197,7 @@ fun AnalyticsScreen(
           HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), color = MaterialTheme.colorScheme.surfaceVariant)
 
           PriceComparisonRow(
-            title = "This Month Average",
+            title = stringResource(R.string.filter_this_month),
             price = uiState.monthSummary.avgPricePaid,
             currency = currency,
             volUnit = volUnit
@@ -204,7 +206,7 @@ fun AnalyticsScreen(
           HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), color = MaterialTheme.colorScheme.surfaceVariant)
 
           PriceComparisonRow(
-            title = "This Year Average",
+            title = stringResource(R.string.filter_this_year),
             price = uiState.yearSummary.avgPricePaid,
             currency = currency,
             volUnit = volUnit
@@ -213,7 +215,7 @@ fun AnalyticsScreen(
           HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), color = MaterialTheme.colorScheme.surfaceVariant)
 
           PriceComparisonRow(
-            title = "Since I Bought It (All-Time)",
+            title = stringResource(R.string.filter_all_time),
             price = sincePurchaseSum.avgPricePaid,
             currency = currency,
             volUnit = volUnit,
@@ -243,7 +245,7 @@ fun AnalyticsScreen(
       ) {
         Column(modifier = Modifier.padding(18.dp)) {
           Text(
-            text = "Cost & Driving Cadence",
+            text = stringResource(R.string.cost_per_distance),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
           )
@@ -254,17 +256,17 @@ fun AnalyticsScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
           ) {
             AnalyticsMetricBox(
-              title = "Cost per $distUnit",
+              title = "${stringResource(R.string.total_cost)} / $distUnit",
               value = if (sincePurchaseSum.costPerDistance > 0) {
                 String.format(Locale.getDefault(), "%s%.3f", currency, sincePurchaseSum.costPerDistance)
               } else "--",
-              subtitle = "per $distUnit driven",
+              subtitle = "per $distUnit",
               icon = Icons.Default.TrendingUp,
               modifier = Modifier.weight(1f)
             )
 
             AnalyticsMetricBox(
-              title = if (isElectric) "Energy Economy" else "Fuel Economy",
+              title = stringResource(R.string.average_economy),
               value = if (sincePurchaseSum.averageEconomy > 0) {
                 String.format(Locale.getDefault(), "%.1f", sincePurchaseSum.averageEconomy)
               } else "--",
@@ -281,21 +283,21 @@ fun AnalyticsScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
           ) {
             AnalyticsMetricBox(
-              title = "Spending / Day",
+              title = stringResource(R.string.daily_average),
               value = if (sincePurchaseSum.spendingPerDay > 0) {
                 String.format(Locale.getDefault(), "%s%.2f", currency, sincePurchaseSum.spendingPerDay)
               } else "--",
-              subtitle = "avg daily cost",
+              subtitle = "daily",
               icon = Icons.Default.CalendarMonth,
               modifier = Modifier.weight(1f)
             )
 
             AnalyticsMetricBox(
-              title = "Spending / Month",
+              title = stringResource(R.string.monthly_average),
               value = if (sincePurchaseSum.spendingPerMonth > 0) {
                 String.format(Locale.getDefault(), "%s%.2f", currency, sincePurchaseSum.spendingPerMonth)
               } else "--",
-              subtitle = "projected monthly",
+              subtitle = "monthly",
               icon = Icons.Default.CalendarMonth,
               modifier = Modifier.weight(1f)
             )

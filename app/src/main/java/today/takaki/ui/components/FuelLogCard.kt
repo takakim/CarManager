@@ -26,6 +26,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -246,7 +248,7 @@ fun FuelLogCard(
         ) {
           Icon(
             imageVector = Icons.Default.Edit,
-            contentDescription = "Edit Log",
+            contentDescription = stringResource(R.string.action_edit),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp)
           )
@@ -260,7 +262,7 @@ fun FuelLogCard(
         ) {
           Icon(
             imageVector = Icons.Default.DeleteOutline,
-            contentDescription = "Delete Log",
+            contentDescription = stringResource(R.string.action_delete),
             tint = Color(0xFFEF4444),
             modifier = Modifier.size(18.dp)
           )

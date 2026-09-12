@@ -41,6 +41,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.FuelLog
 import today.takaki.data.model.VehicleProfile
 import today.takaki.ui.components.FuelLogCard
@@ -89,12 +91,12 @@ fun LogsHistoryScreen(
       ) {
         Column {
           Text(
-            text = "Refuel History",
+            text = stringResource(R.string.tab_logs),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold
           )
           Text(
-            text = "${logs.size} total entries recorded",
+            text = "${logs.size} ${stringResource(R.string.tab_logs).lowercase(Locale.getDefault())}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -108,7 +110,7 @@ fun LogsHistoryScreen(
         ) {
           Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
           Spacer(modifier = Modifier.size(4.dp))
-          Text("Add")
+          Text(stringResource(R.string.action_save).let { stringResource(R.string.tab_overview) /* or + */; "+" })
         }
       }
     }
@@ -128,7 +130,7 @@ fun LogsHistoryScreen(
         ) {
           Column {
             Text(
-              text = "Total Spent",
+              text = stringResource(R.string.total_spent),
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -141,7 +143,7 @@ fun LogsHistoryScreen(
 
           Column {
             Text(
-              text = "Total Fuel/Energy",
+              text = stringResource(R.string.total_volume),
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -154,7 +156,7 @@ fun LogsHistoryScreen(
 
           Column(horizontalAlignment = Alignment.End) {
             Text(
-              text = "Avg Price Paid",
+              text = stringResource(R.string.avg_price_paid),
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -177,14 +179,14 @@ fun LogsHistoryScreen(
         OutlinedTextField(
           value = searchQuery,
           onValueChange = { searchQuery = it },
-          placeholder = { Text("Search by station, grade, notes...") },
+          placeholder = { Text(stringResource(R.string.search_logs_hint)) },
           leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = "Search")
+            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_logs_hint))
           },
           trailingIcon = {
             if (searchQuery.isNotEmpty()) {
               IconButton(onClick = { searchQuery = "" }) {
-                Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.action_close))
               }
             }
           },
@@ -214,7 +216,7 @@ fun LogsHistoryScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-              text = if (searchQuery.isNotEmpty()) "No entries matching '$searchQuery'" else "No fuel logs yet",
+              text = if (searchQuery.isNotEmpty()) stringResource(R.string.no_matching_logs) else stringResource(R.string.no_logs_title),
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )

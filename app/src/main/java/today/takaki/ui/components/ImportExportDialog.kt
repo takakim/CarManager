@@ -48,6 +48,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -161,7 +163,7 @@ fun ImportExportDialog(
           modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-          text = if (selectedTab == ImportExportTab.EXPORT) "Export Refuel Data" else "Import Refuel Data",
+          text = stringResource(R.string.import_export_title),
           style = MaterialTheme.typography.titleLarge,
           fontWeight = FontWeight.Bold
         )
@@ -476,7 +478,7 @@ fun ImportExportDialog(
     },
     confirmButton = {
       OutlinedButton(onClick = onDismiss) {
-        Text("Done")
+        Text(stringResource(R.string.action_done))
       }
     }
   )

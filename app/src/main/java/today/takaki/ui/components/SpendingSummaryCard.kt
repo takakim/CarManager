@@ -36,6 +36,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import today.takaki.data.model.FuelType
 import today.takaki.data.model.PeriodSummary
 import today.takaki.data.model.VehicleProfile
@@ -84,7 +86,7 @@ fun SpendingHeroCard(
             shape = RoundedCornerShape(12.dp)
           ) {
             Text(
-              text = summary.timeFilter.title.uppercase(Locale.getDefault()),
+              text = stringResource(summary.timeFilter.nameRes).uppercase(Locale.getDefault()),
               color = Color.White,
               fontSize = 11.sp,
               fontWeight = FontWeight.Bold,
@@ -114,7 +116,7 @@ fun SpendingHeroCard(
 
         // Total Spent Main Display
         Text(
-          text = "Total Spending",
+          text = stringResource(R.string.total_spending),
           color = Color.White.copy(alpha = 0.75f),
           fontSize = 13.sp,
           fontWeight = FontWeight.Normal
@@ -168,14 +170,14 @@ fun SpendingHeroCard(
               Spacer(modifier = Modifier.width(10.dp))
               Column {
                 Text(
-                  text = "Avg Price Paid",
+                  text = stringResource(R.string.avg_price_paid),
                   color = Color.White.copy(alpha = 0.8f),
                   fontSize = 12.sp
                 )
                 Text(
                   text = if (summary.avgPricePaid > 0) {
                     String.format(Locale.getDefault(), "%s%.3f / %s", currency, summary.avgPricePaid, volUnit)
-                  } else "No logs in period",
+                  } else stringResource(R.string.no_logs_in_period),
                   color = Color(0xFFFDE68A),
                   fontSize = 15.sp,
                   fontWeight = FontWeight.Bold
@@ -189,7 +191,11 @@ fun SpendingHeroCard(
                 shape = RoundedCornerShape(8.dp)
               ) {
                 Text(
-                  text = "${summary.logCount} ${if (summary.logCount == 1) "refuel" else "refuels"}",
+                  text = if (summary.logCount == 1) {
+                    stringResource(R.string.refuel_count_fmt, summary.logCount)
+                  } else {
+                    stringResource(R.string.refuels_count_fmt, summary.logCount)
+                  },
                   color = Color.White,
                   fontSize = 11.sp,
                   fontWeight = FontWeight.Medium,
@@ -209,21 +215,21 @@ fun SpendingHeroCard(
         ) {
           // Volume
           SubMetricItem(
-            label = "Total Fuel/Energy",
+            label = stringResource(R.string.total_fuel_energy),
             value = if (summary.totalVolume > 0) String.format(Locale.getDefault(), "%.1f %s", summary.totalVolume, volUnit) else "0 $volUnit",
             icon = if (isElectric) Icons.Default.ElectricBolt else Icons.Default.LocalGasStation
           )
 
           // Distance
           SubMetricItem(
-            label = "Distance",
+            label = stringResource(R.string.distance_label),
             value = if (summary.totalDistance > 0) String.format(Locale.getDefault(), "%.0f %s", summary.totalDistance, distUnit) else "0 $distUnit",
             icon = Icons.Default.Speed
           )
 
           // Cost / Distance
           SubMetricItem(
-            label = "Cost / $distUnit",
+            label = stringResource(R.string.cost_per_unit_fmt, distUnit),
             value = if (summary.costPerDistance > 0) String.format(Locale.getDefault(), "%s%.2f/%s", currency, summary.costPerDistance, distUnit) else "--",
             icon = Icons.Default.TrendingUp
           )

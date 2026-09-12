@@ -40,6 +40,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import today.takaki.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +71,15 @@ enum class ArchiveExchangeMode {
   ARCHIVE_ONLY
 }
 
+enum class ArchiveReasonPreset(val labelRes: Int) {
+  TRADED_IN(R.string.reason_traded_in),
+  SOLD_PRIVATE(R.string.reason_sold_private),
+  LEASE_ENDED(R.string.reason_lease_ended),
+  FLEET_CHANGE(R.string.reason_fleet_change),
+  SCRAPPED(R.string.reason_scrapped),
+  OTHER(R.string.reason_other)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArchiveExchangeDialog(
@@ -88,18 +99,9 @@ fun ArchiveExchangeDialog(
 
   // Archive Fields
   var archiveDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
-  var archiveOdoStr by remember { mutableStateOf(String.format(Locale.US, "%.0f", latestOdometer)) }
-  var archiveReason by remember { mutableStateOf("Traded in / Exchanged") }
+  var archiveOdoStr by remember { mutableStateOf(String.format(Locale.getDefault(), "%.0f", latestOdometer)) }
+  var selectedReason by remember { mutableStateOf(ArchiveReasonPreset.TRADED_IN) }
   var reasonExpanded by remember { mutableStateOf(false) }
-
-  val commonReasons = listOf(
-    "Traded in / Exchanged",
-    "Sold to Private Buyer",
-    "Lease Ended / Returned",
-    "Company / Fleet Change",
-    "Scrapped / Retired",
-    "Other"
-  )
 
   // Replacement Vehicle Fields (for Exchange mode)
   var newName by remember { mutableStateOf("Next Car") }
@@ -138,7 +140,7 @@ fun ArchiveExchangeDialog(
           modifier = Modifier.padding(end = 8.dp)
         )
         Text(
-          text = if (mode == ArchiveExchangeMode.EXCHANGE) "Exchange Vehicle" else "Archive Vehicle",
+          text = if (mode == ArchiveExchangeMode.EXCHANGE) stringResource(R.string.exchange_vehicle_btn) else stringResource(R.string.archive_exchange_title),
           style = MaterialTheme.typography.titleLarge,
           fontWeight = FontWeight.Bold
         )
@@ -164,17 +166,17 @@ fun ArchiveExchangeDialog(
               selected = mode == ArchiveExchangeMode.EXCHANGE,
               onClick = {
                 mode = ArchiveExchangeMode.EXCHANGE
-                archiveReason = "Traded in / Exchanged"
+                selectedReason = ArchiveReasonPreset.TRADED_IN
               },
-              text = { Text("Exchange for New", fontWeight = FontWeight.Bold) }
+              text = { Text(stringResource(R.string.archive_exchange_new_tab), fontWeight = FontWeight.Bold) }
             )
             Tab(
               selected = mode == ArchiveExchangeMode.ARCHIVE_ONLY,
               onClick = {
                 mode = ArchiveExchangeMode.ARCHIVE_ONLY
-                archiveReason = "Sold to Private Buyer"
+                selectedReason = ArchiveReasonPreset.SOLD_PRIVATE
               },
-              text = { Text("Archive Only", fontWeight = FontWeight.Bold) }
+              text = { Text(stringResource(R.string.archive_only_tab), fontWeight = FontWeight.Bold) }
             )
           }
         }
@@ -203,7 +205,11 @@ fun ArchiveExchangeDialog(
                 style = MaterialTheme.typography.bodyMedium
               )
               Text(
-                text = "Starting Odo: ${String.format(Locale.US, "%.0f", currentVehicle.initialOdometer)} ${currentVehicle.distanceUnit.symbol} • Will be saved in Car History",
+                text = stringResource(
+                  R.string.archive_starting_odo_note,
+                  String.format(Locale.getDefault(), "%,.0f", currentVehicle.initialOdometer),
+                  currentVehicle.distanceUnit.symbol
+                ),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
               )
@@ -213,7 +219,7 @@ fun ArchiveExchangeDialog(
 
         // Section: Archive Details
         Text(
-          text = "Ownership End Details",
+          text = stringResource(R.string.ownership_end_details),
           style = MaterialTheme.typography.labelLarge,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.primary
@@ -233,7 +239,7 @@ fun ArchiveExchangeDialog(
             Icon(Icons.Default.CalendarToday, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-              Text(text = "Exchange / Archive Date", style = MaterialTheme.typography.labelMedium)
+              Text(text = stringResource(R.string.exchange_archive_date), style = MaterialTheme.typography.labelMedium)
               Text(text = dateFormat.format(Date(archiveDateMillis)), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
             }
           }
@@ -243,7 +249,7 @@ fun ArchiveExchangeDialog(
         OutlinedTextField(
           value = archiveOdoStr,
           onValueChange = { archiveOdoStr = it },
-          label = { Text("Final Odometer (${currentVehicle.distanceUnit.symbol})") },
+          label = { Text("${stringResource(R.string.final_odometer)} (${currentVehicle.distanceUnit.symbol})") },
           placeholder = { Text("e.g. 65000") },
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
           singleLine = true,
@@ -257,9 +263,10 @@ fun ArchiveExchangeDialog(
           modifier = Modifier.fillMaxWidth()
         ) {
           OutlinedTextField(
-            value = archiveReason,
-            onValueChange = { archiveReason = it },
-            label = { Text("Reason for Archive / Exchange") },
+            value = stringResource(selectedReason.labelRes),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.reason_for_archive)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = reasonExpanded) },
             modifier = Modifier
               .menuAnchor()
@@ -269,11 +276,11 @@ fun ArchiveExchangeDialog(
             expanded = reasonExpanded,
             onDismissRequest = { reasonExpanded = false }
           ) {
-            commonReasons.forEach { reason ->
+            ArchiveReasonPreset.values().forEach { reason ->
               DropdownMenuItem(
-                text = { Text(reason) },
+                text = { Text(stringResource(reason.labelRes)) },
                 onClick = {
-                  archiveReason = reason
+                  selectedReason = reason
                   reasonExpanded = false
                 }
               )
@@ -286,7 +293,7 @@ fun ArchiveExchangeDialog(
           HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
 
           Text(
-            text = "New Replacement Car Details",
+            text = stringResource(R.string.new_replacement_car_details),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -295,7 +302,7 @@ fun ArchiveExchangeDialog(
           OutlinedTextField(
             value = newName,
             onValueChange = { newName = it },
-            label = { Text("Car Nickname") },
+            label = { Text(stringResource(R.string.car_nickname)) },
             placeholder = { Text("e.g. Daily Driver") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -304,7 +311,7 @@ fun ArchiveExchangeDialog(
           OutlinedTextField(
             value = newMakeModel,
             onValueChange = { newMakeModel = it },
-            label = { Text("Make & Model") },
+            label = { Text(stringResource(R.string.make_and_model)) },
             placeholder = { Text("e.g. Toyota RAV4 or Tesla Model 3") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -317,7 +324,7 @@ fun ArchiveExchangeDialog(
             OutlinedTextField(
               value = newYearStr,
               onValueChange = { newYearStr = it },
-              label = { Text("Year") },
+              label = { Text(stringResource(R.string.vehicle_year)) },
               keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
               singleLine = true,
               modifier = Modifier.weight(1f)
@@ -330,10 +337,10 @@ fun ArchiveExchangeDialog(
               modifier = Modifier.weight(1.3f)
             ) {
               OutlinedTextField(
-                value = newFuelType.displayName,
+                value = stringResource(newFuelType.nameRes),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Fuel / Energy") },
+                label = { Text(stringResource(R.string.fuel_type_label)) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = newFuelTypeExpanded) },
                 modifier = Modifier
                   .menuAnchor()
@@ -345,7 +352,7 @@ fun ArchiveExchangeDialog(
               ) {
                 FuelType.values().forEach { ft ->
                   DropdownMenuItem(
-                    text = { Text(ft.displayName) },
+                    text = { Text(stringResource(ft.nameRes)) },
                     onClick = {
                       newFuelType = ft
                       newFuelTypeExpanded = false
@@ -363,7 +370,7 @@ fun ArchiveExchangeDialog(
             OutlinedTextField(
               value = newInitialOdoStr,
               onValueChange = { newInitialOdoStr = it },
-              label = { Text("Starting Odo (${currentVehicle.distanceUnit.symbol})") },
+              label = { Text("${stringResource(R.string.initial_odometer_label)} (${currentVehicle.distanceUnit.symbol})") },
               placeholder = { Text("0") },
               keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
               singleLine = true,
@@ -375,8 +382,8 @@ fun ArchiveExchangeDialog(
               onValueChange = { newTankCapacityStr = it },
               label = {
                 Text(
-                  if (newFuelType == FuelType.ELECTRIC) "Battery (kWh)"
-                  else "Tank (${currentVehicle.volumeUnit.symbol})"
+                  if (newFuelType == FuelType.ELECTRIC) stringResource(R.string.battery_capacity_kwh)
+                  else "${stringResource(R.string.volume_unit_label)} (${currentVehicle.volumeUnit.symbol})"
                 )
               },
               placeholder = { Text("50") },
@@ -421,10 +428,11 @@ fun ArchiveExchangeDialog(
             null
           }
 
+          val reasonStr = context.getString(selectedReason.labelRes)
           onConfirm(
             archiveDateMillis,
             finalOdo,
-            archiveReason.ifBlank { "Archived" },
+            reasonStr,
             isExchange,
             replacement
           )
@@ -433,12 +441,12 @@ fun ArchiveExchangeDialog(
           containerColor = MaterialTheme.colorScheme.primary
         )
       ) {
-        Text(if (mode == ArchiveExchangeMode.EXCHANGE) "Exchange Car" else "Archive Car")
+        Text(if (mode == ArchiveExchangeMode.EXCHANGE) stringResource(R.string.exchange_vehicle_btn) else stringResource(R.string.archive_vehicle_btn))
       }
     },
     dismissButton = {
       OutlinedButton(onClick = onDismiss) {
-        Text("Cancel")
+        Text(stringResource(R.string.action_cancel))
       }
     }
   )
