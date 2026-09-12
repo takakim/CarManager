@@ -8,6 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import today.takaki.data.util.LocaleManager
+import today.takaki.data.util.ProvideLocalizedApp
 import today.takaki.ui.screens.MainScreen
 import today.takaki.ui.theme.MyApplicationTheme
 import today.takaki.ui.viewmodel.FuelTrackerViewModel
@@ -17,11 +19,14 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    LocaleManager.init(this)
     enableEdgeToEdge()
     setContent {
-      MyApplicationTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-          MainScreen(viewModel = viewModel)
+      ProvideLocalizedApp {
+        MyApplicationTheme {
+          Surface(modifier = Modifier.fillMaxSize()) {
+            MainScreen(viewModel = viewModel)
+          }
         }
       }
     }
